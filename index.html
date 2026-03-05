@@ -4,77 +4,80 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Market Cipher Risk Simulator — Alauddin Ahmed</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#03070f;--bg2:#060d1a;--bg3:#0a1525;--bg4:#0c1a30;
-  --border:#0d2040;--border2:#1a3560;
-  --text:#b8cee0;--text2:#7a9ab8;--muted:#3a5a7a;--muted2:#254060;
-  --green:#00e5aa;--green2:rgba(0,229,170,.12);
-  --red:#ff4060;--red2:rgba(255,64,96,.1);
-  --yellow:#ffb800;--blue:#38aaff;--blue2:rgba(56,170,255,.1);
-  --mono:'Space Mono',monospace;--sans:'Syne',sans-serif;
+:root {
+  --bg:#03070f; --bg2:#060d1a; --bg3:#0a1525; --bg4:#0c1a30;
+  --border:#0d2040; --border2:#1a3560;
+  --text:#b8cee0; --text2:#7a9ab8; --muted:#3a5a7a; --muted2:#254060;
+  --green:#00e5aa; --green2:rgba(0,229,170,0.12);
+  --red:#ff4060; --red2:rgba(255,64,96,0.1);
+  --yellow:#ffb800; --yellow2:rgba(255,184,0,0.1);
+  --blue:#38aaff; --blue2:rgba(56,170,255,0.1);
+  --purple:#9b6fff;
+  --mono:'Space Mono',monospace;
+  --sans:'Syne',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh;
-  background-image:radial-gradient(ellipse 80% 50% at 15% 0%,rgba(0,60,140,.1) 0%,transparent 65%),
-  radial-gradient(ellipse 60% 40% at 85% 100%,rgba(0,160,100,.06) 0%,transparent 65%)}
+  background-image:radial-gradient(ellipse 80% 50% at 15% 0%,rgba(0,60,140,0.1) 0%,transparent 65%),
+  radial-gradient(ellipse 60% 40% at 85% 100%,rgba(0,160,100,0.06) 0%,transparent 65%)}
+
+/* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── LAYOUT ── */
 .wrap{max-width:1140px;margin:0 auto;padding:28px 20px 60px}
-.fade{animation:fadeIn .4s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.hidden{display:none!important}
-/* ── LOADING ── */
-.loading-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.loader{width:40px;height:40px;border:3px solid rgba(0,229,170,.15);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:12px;color:var(--muted);letter-spacing:.1em}
-/* ── AUTH ── */
-.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px 32px;width:100%;max-width:420px;text-align:center}
-.auth-logo{font-family:var(--sans);font-size:22px;font-weight:800;color:#e8f4ff;margin-bottom:4px}
-.auth-logo span{color:var(--green)}
-.auth-sub{font-size:11px;color:var(--muted);margin-bottom:28px;letter-spacing:.05em}
-.auth-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--bg3);padding:4px;border-radius:8px}
-.auth-tab{flex:1;padding:8px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--mono);border:none;background:transparent;color:var(--muted);transition:all .15s}
-.auth-tab.active{background:var(--bg4);color:var(--text);border:1px solid var(--border2)}
-.auth-field{text-align:left;margin-bottom:14px}
-.auth-msg{font-size:11px;padding:8px 12px;border-radius:6px;margin-bottom:14px;text-align:left}
-.auth-msg.err{background:var(--red2);color:var(--red);border:1px solid rgba(255,64,96,.2)}
-.auth-msg.ok{background:var(--green2);color:var(--green);border:1px solid rgba(0,229,170,.2)}
-.auth-creator{margin-top:20px;font-size:10px;color:var(--muted2);padding-top:16px;border-top:1px solid var(--border)}
+
 /* ── HEADER ── */
-.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;gap:16px;flex-wrap:wrap}
-.tag{font-size:10px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2.5s infinite}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;gap:16px;flex-wrap:wrap}
+.header-left .tag{font-size:10px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.header-left .tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 h1{font-family:var(--sans);font-size:26px;font-weight:800;color:#e8f4ff;letter-spacing:-1px}
 h1 span{color:var(--green)}
-.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.creator-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;text-align:right}
-.cr-label{font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
-.cr-name{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--green);margin-bottom:2px}
-.cr-wa{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px;justify-content:flex-end}
-.cr-wa::before{content:'';width:7px;height:7px;background:#25d366;border-radius:50%;display:inline-block}
-.user-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:10px;font-size:11px}
-.up-email{color:var(--text2)}
-.up-logout{color:var(--red);cursor:pointer;font-size:11px;border:none;background:transparent;font-family:var(--mono);padding:0;opacity:.7;transition:opacity .15s}
-.up-logout:hover{opacity:1}
-/* ── PANELS ── */
+.creator-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;text-align:right;min-width:180px}
+.creator-card .cr-label{font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.creator-card .cr-name{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--green);margin-bottom:3px}
+.creator-card .cr-wa{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px;justify-content:flex-end}
+.creator-card .cr-wa::before{content:'';width:8px;height:8px;background:#25d366;border-radius:50%;display:inline-block}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;margin-bottom:0;background:var(--bg2);border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 8px 0;flex-wrap:wrap}
+.tab{font-family:var(--mono);font-size:11px;padding:8px 16px;border-radius:6px 6px 0 0;cursor:pointer;border:1px solid transparent;
+  color:var(--muted);background:transparent;transition:all .15s;white-space:nowrap}
+.tab.active{background:var(--bg3);border-color:var(--border2);border-bottom-color:var(--bg3);color:var(--text);margin-bottom:-1px;z-index:2}
+.tab:hover:not(.active){color:var(--text2);background:var(--bg3)}
+.tab-add{color:var(--green);font-weight:700;opacity:.7}
+.tab-add:hover{opacity:1}
+.tab-panel{background:var(--bg2);border:1px solid var(--border);border-radius:0 10px 10px 10px;padding:20px;margin-bottom:16px}
+
+/* ── PANEL ── */
 .panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .2s}
 .panel:hover{border-color:var(--border2)}
 .pt{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .pt::after{content:'';flex:1;height:1px;background:var(--border)}
-.mb16{margin-bottom:16px}.mt16{margin-top:16px}
+.mb16{margin-bottom:16px}
+.mt16{margin-top:16px}
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* ── GRIDS ── */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media(max-width:700px){.g2,.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:440px){.g2,.g3{grid-template-columns:1fr}}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* ── FORM ELEMENTS ── */
 label{font-size:10px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px}
-input[type=number],input[type=text],input[type=email],input[type=password],select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;border-radius:8px;padding:9px 12px;outline:none;transition:border-color .15s,box-shadow .15s}
+input[type=number],input[type=text],select,textarea{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-family:var(--mono);font-size:13px;
+  border-radius:8px;padding:9px 12px;outline:none;transition:border-color .15s,box-shadow .15s}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(0,229,170,.08)}
 select option{background:var(--bg3)}
@@ -83,674 +86,811 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 .pfx input{padding-left:22px}
 .sfx{position:relative}.sfx span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px;pointer-events:none}
 .sfx input{padding-right:28px}
+
 /* ── BUTTONS ── */
-.btn{background:var(--green);color:#000;font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.04em;border:none;border-radius:8px;padding:10px 22px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn{background:var(--green);color:#000;font-family:var(--sans);font-weight:700;font-size:13px;
+  letter-spacing:.04em;border:none;border-radius:8px;padding:10px 22px;cursor:pointer;
+  transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{background:#00ffbb;transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,229,170,.25)}
 .btn:active{transform:translateY(0)}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .btn-sm{padding:7px 14px;font-size:12px}
 .btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2);font-family:var(--mono);font-size:12px}
 .btn-outline:hover{background:var(--bg3);color:var(--text);transform:none;box-shadow:none}
-.btn-full{width:100%;justify-content:center}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(255,64,96,.3);font-family:var(--mono);font-size:11px}
+.btn-danger:hover{background:var(--red2);transform:none;box-shadow:none}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
-/* ── TABS ── */
-.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 8px 0;flex-wrap:wrap}
-.tab{font-family:var(--mono);font-size:11px;padding:8px 14px;border-radius:6px 6px 0 0;cursor:pointer;border:1px solid transparent;color:var(--muted);background:transparent;transition:all .15s}
-.tab.active{background:var(--bg3);border-color:var(--border2);border-bottom-color:var(--bg3);color:var(--text);margin-bottom:-1px;z-index:2}
-.tab:hover:not(.active){color:var(--text2)}
-.tab-panel{background:var(--bg2);border:1px solid var(--border);border-radius:0 10px 10px 10px;padding:20px;margin-bottom:16px}
-/* ── MONTHS ── */
-.month-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:16px}
-.month-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .15s;position:relative}
+
+/* ── MONTH CARDS ── */
+.month-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.month-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;
+  cursor:pointer;transition:all .15s;position:relative}
 .month-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.month-card.selected{border-color:var(--green);background:rgba(0,229,170,.04)}
-.mc-name{font-family:var(--sans);font-size:14px;font-weight:700;color:#e8f4ff;margin-bottom:4px}
-.mc-stats{font-size:10px;color:var(--muted);line-height:1.9}
-.mc-wr{font-size:12px;font-weight:700;margin-top:6px}
-.mc-del{position:absolute;top:10px;right:10px;color:var(--red);opacity:.35;cursor:pointer;font-size:16px;line-height:1;transition:opacity .15s;background:transparent;border:none}
-.mc-del:hover{opacity:1}
-.add-card{border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:120px;color:var(--muted);font-size:12px}
-.add-card:hover{border-color:var(--green);color:var(--green)}
-.add-card .plus{font-size:28px;font-weight:300}
-/* ── SCENARIOS ── */
+.month-card.selected{border-color:var(--green);background:rgba(0,229,170,.05);box-shadow:0 0 20px rgba(0,229,170,.08)}
+.month-card .mc-name{font-family:var(--sans);font-size:14px;font-weight:700;color:#e8f4ff;margin-bottom:4px}
+.month-card .mc-stats{font-size:10px;color:var(--muted);line-height:1.8}
+.month-card .mc-wr{font-size:11px;font-weight:700;margin-top:6px}
+.month-card .mc-del{position:absolute;top:10px;right:10px;color:var(--red);opacity:.4;cursor:pointer;font-size:14px;transition:opacity .15s}
+.month-card .mc-del:hover{opacity:1}
+.month-card.add-card{border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;min-height:100px;color:var(--muted);font-size:12px}
+.month-card.add-card:hover{border-color:var(--green);color:var(--green)}
+.month-card.add-card .plus{font-size:24px;font-weight:300;color:inherit}
+
+/* ── SCENARIO CARDS ── */
 .sc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
 @media(max-width:700px){.sc-grid{grid-template-columns:1fr 1fr}}
-.sc-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;position:relative;transition:all .15s}
+.sc-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;
+  position:relative;transition:all .15s}
 .sc-card.on{border-color:var(--sc-c);background:var(--sc-bg);box-shadow:0 0 14px var(--sc-glow)}
+.sc-card:hover{transform:translateY(-1px)}
 .sc-name{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--sc-c);margin-bottom:2px}
 .sc-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
 .sc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}
 .sc-row label{margin:0;font-size:9px;white-space:nowrap}
 .sc-row input,.sc-row select{width:90px;font-size:11px;padding:5px 8px;border-radius:5px}
-.sc-toggle{width:28px;height:16px;border-radius:8px;background:var(--border2);cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;padding:2px;flex-shrink:0}
+.sc-row select{font-size:11px}
+.sc-toggle{width:28px;height:16px;border-radius:8px;background:var(--border2);cursor:pointer;
+  transition:background .2s;display:inline-flex;align-items:center;padding:2px;flex-shrink:0}
 .sc-toggle.on{background:var(--sc-c)}
 .sc-toggle::after{content:'';width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .2s}
 .sc-toggle.on::after{transform:translateX(12px)}
 .sc-bottom{display:flex;align-items:center;gap:8px;margin-top:10px}
 .sc-bottom span{font-size:10px;color:var(--muted)}
+
 /* ── CHART ── */
 .chart-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 16px 12px;margin:16px 0}
 .chart-h{height:280px;position:relative}
+
+/* ── RESULT CARDS ── */
 .rc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media(max-width:700px){.rc-grid{grid-template-columns:1fr 1fr}}
 .rc{border-radius:10px;padding:16px;border:1px solid transparent;transition:border-color .2s}
-.rc:hover{border-color:var(--rc-c)!important}
+.rc:hover{border-color:var(--rc-c) !important}
 .rc-name{font-family:var(--sans);font-size:14px;font-weight:700;margin-bottom:3px}
 .rc-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
 .badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.12em;padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:middle}
 .sm{background:var(--bg);border-radius:6px;padding:8px 10px}
-.sl{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
-.sv{font-size:15px;font-weight:700}
-.seq-prev{font-size:11px;line-height:2;word-break:break-all;max-height:75px;overflow-y:auto;padding:4px 0}
+.sm .sl{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.sm .sv{font-size:15px;font-weight:700}
+
+/* ── SEQ PREVIEW ── */
+.seq-prev{font-size:11px;line-height:2;word-break:break-all;max-height:75px;overflow-y:auto;padding:4px 0;letter-spacing:.05em}
 .tw{color:var(--green);font-weight:700}
 .tl{color:var(--red);font-weight:700}
 .tll{color:#ff8800;font-weight:700;text-decoration:underline dotted}
+
+/* ── INFO ROW ── */
 .info-row{display:flex;gap:18px;flex-wrap:wrap;padding:12px 16px;background:var(--bg3);border-radius:8px;margin-bottom:16px}
 .ii{display:flex;flex-direction:column;gap:2px}
-.il{font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
-.iv{font-size:14px;font-weight:700}
+.ii .il{font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.ii .iv{font-size:14px;font-weight:700}
+
+/* ── VERDICT ── */
 .verdict{background:rgba(0,229,170,.04);border:1px solid rgba(0,229,170,.18);border-radius:12px;padding:18px 20px;margin-top:16px}
-.verdict-title{color:var(--green);font-family:var(--sans);font-weight:700;font-size:15px;margin-bottom:10px}
+.verdict-title{color:var(--green);font-family:var(--sans);font-weight:700;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .verdict p{color:var(--text2);line-height:1.8;font-size:12px;margin-bottom:8px}
 .verdict p:last-child{margin:0}
 .verdict strong{color:var(--green)}
-.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.pill{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;transition:all .15s;user-select:none}
-.pill.on{background:rgba(0,229,170,.1);border-color:var(--green);color:var(--green)}
-.pill:hover{border-color:var(--green)}
-.lb-row{display:grid;grid-template-columns:32px 1fr auto auto auto;gap:12px;align-items:center;padding:10px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;background:var(--bg3)}
-.lb-row:first-child{border-color:var(--green);background:rgba(0,229,170,.04)}
-.lb-rank{font-family:var(--sans);font-weight:800;font-size:16px;color:var(--muted);text-align:center}
-.lb-row:first-child .lb-rank{color:var(--green)}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center;padding:20px}
-.modal-bg.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:500px;position:relative;animation:fadeIn .2s ease;max-height:90vh;overflow-y:auto}
-.modal-close{position:absolute;top:14px;right:18px;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;background:transparent;border:none}
+
+/* ── COMBINED VIEW ── */
+.combined-month-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cm-tag{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;
+  font-size:11px;cursor:pointer;transition:all .15s;user-select:none}
+.cm-tag.on{background:rgba(0,229,170,.1);border-color:var(--green);color:var(--green)}
+.cm-tag:hover{border-color:var(--green)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px;
+  width:100%;max-width:500px;position:relative;animation:slideUp .2s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.modal-close{position:absolute;top:16px;right:18px;color:var(--muted);cursor:pointer;font-size:20px;line-height:1}
 .modal-close:hover{color:var(--text)}
 .modal h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#e8f4ff;margin-bottom:18px}
-.footer{margin-top:48px;border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+
+/* ── FOOTER ── */
+.footer{margin-top:48px;border-top:1px solid var(--border);padding-top:20px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:gap;gap:12px}
 .footer-left{font-size:11px;color:var(--muted);line-height:1.7}
 .footer-right{text-align:right;font-size:11px;color:var(--muted)}
-.fn{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--green)}
-.fw{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:3px}
-.fw::before{content:'';width:7px;height:7px;background:#25d366;border-radius:50%;display:inline-block}
+.footer .fn{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--green)}
+.footer .fw{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:3px}
+.footer .fw::before{content:'';width:7px;height:7px;background:#25d366;border-radius:50%;display:inline-block}
+
+/* ── ANIMATIONS ── */
+.fade{animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- LOADING — visible by default, no JS needed -->
-<div id="S_LOAD" style="display:block">
-  <div class="loading-wrap">
-    <div class="loader"></div>
-    <div class="loading-text" id="loadMsg">Connecting to Supabase...</div>
+<!-- HEADER -->
+<div class="header fade">
+  <div class="header-left">
+    <div class="tag">Market Cipher · BTC M15 · Polymarket · Toggle Martingale</div>
+    <h1>Risk <span>Simulator</span></h1>
+  </div>
+  <div class="creator-card">
+    <div class="cr-label">Created by</div>
+    <div class="cr-name">Alauddin Ahmed</div>
+    <div class="cr-wa">+880 1724-501119</div>
   </div>
 </div>
 
-<!-- AUTH — hidden by default -->
-<div id="S_AUTH" style="display:none">
-  <div class="auth-wrap">
-    <div class="auth-box fade">
-      <div class="auth-logo">Risk <span>Simulator</span></div>
-      <div class="auth-sub">Market Cipher · BTC M15 · Toggle Martingale</div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="setAuthTab('login')">Login</button>
-        <button class="auth-tab" onclick="setAuthTab('signup')">Sign Up</button>
-      </div>
-      <div id="authMsg" class="auth-msg hidden"></div>
-      <div id="nameField" style="display:none" class="auth-field">
-        <label>Your Name</label>
-        <input type="text" id="authName" placeholder="e.g. Alauddin Ahmed">
-      </div>
-      <div class="auth-field">
-        <label>Email</label>
-        <input type="email" id="authEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doAuth()">
-      </div>
-      <div class="auth-field">
-        <label>Password</label>
-        <input type="password" id="authPass" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doAuth()">
-      </div>
-      <button class="btn btn-full mt16" id="authBtn" onclick="doAuth()">Login</button>
-      <div class="auth-creator">Created by <strong style="color:var(--green)">Alauddin Ahmed</strong> · +880 1724-501119</div>
-    </div>
+<!-- NAV TABS -->
+<div class="tabs" id="mainTabs">
+  <div class="tab active" onclick="switchMainTab('months')" data-tab="months">📅 Monthly Data</div>
+  <div class="tab" onclick="switchMainTab('simulate')" data-tab="simulate">▶ Simulate</div>
+  <div class="tab" onclick="switchMainTab('combined')" data-tab="combined">📊 Combined View</div>
+  <div class="tab" onclick="switchMainTab('settings')" data-tab="settings">⚙ Scenarios</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB: MONTHLY DATA -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="tab-panel fade" id="tab-months">
+  <div class="pt">Saved Months</div>
+
+  <div class="month-grid" id="monthGrid"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-sm" onclick="openAddMonth()">+ Add New Month</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPresetMonth()">Load Feb 2026 (Demo)</button>
   </div>
 </div>
 
-<!-- APP — hidden by default -->
-<div id="S_APP" style="display:none">
-  <div class="wrap">
-    <div class="header fade">
-      <div>
-        <div class="tag">Market Cipher · BTC M15 · Polymarket · Toggle Martingale</div>
-        <h1>Risk <span>Simulator</span></h1>
-      </div>
-      <div class="header-right">
-        <div class="creator-card">
-          <div class="cr-label">Created by</div>
-          <div class="cr-name">Alauddin Ahmed</div>
-          <div class="cr-wa">+880 1724-501119</div>
-        </div>
-        <div class="user-pill">
-          <span class="up-email" id="userEmail"></span>
-          <button class="up-logout" onclick="logout()">Logout</button>
-        </div>
-      </div>
-    </div>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB: SIMULATE -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="tab-panel fade hidden" id="tab-simulate">
+  <div class="pt">Select Month to Simulate</div>
 
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('months')" data-tab="months">📅 Monthly Data</div>
-      <div class="tab" onclick="switchTab('simulate')" data-tab="simulate">▶ Simulate</div>
-      <div class="tab" onclick="switchTab('combined')" data-tab="combined">📊 Combined View</div>
-      <div class="tab" onclick="switchTab('leaderboard')" data-tab="leaderboard">🏆 Leaderboard</div>
-      <div class="tab" onclick="switchTab('settings')" data-tab="settings">⚙ Scenarios</div>
-    </div>
+  <!-- Month selector pills -->
+  <div class="combined-month-list" id="simMonthPills">
+    <span style="color:var(--muted);font-size:12px;">Add months in the Monthly Data tab first.</span>
+  </div>
 
-    <div class="tab-panel" id="tab-months">
-      <div class="pt">Your Saved Months <span id="syncStatus" style="font-family:var(--mono);letter-spacing:0;text-transform:none;font-size:10px;color:var(--muted);margin-left:8px"></span></div>
-      <div class="month-grid" id="monthGrid"></div>
-      <div class="btn-row">
-        <button class="btn btn-sm" onclick="openAddMonth()">+ Add New Month</button>
-        <button class="btn btn-outline btn-sm" onclick="loadFebDemo()">Load Feb 2026 (Demo)</button>
-      </div>
+  <!-- Config row -->
+  <div class="g3 mb16">
+    <div>
+      <label>Starting Capital ($)</label>
+      <div class="pfx"><span>$</span><input type="number" id="cfg_capital" value="200" min="1" step="10"></div>
     </div>
-
-    <div class="tab-panel hidden" id="tab-simulate">
-      <div class="pt">Select Month</div>
-      <div class="pill-row" id="simPills"><span style="color:var(--muted);font-size:12px">Add months first →</span></div>
-      <div class="g3 mb16">
-        <div><label>Starting Capital ($)</label>
-          <div class="pfx"><span>$</span><input type="number" id="cfg_cap" value="200" min="1" step="10"></div></div>
-        <div><label>Martingale Multiplier</label>
-          <div class="sfx"><span>×</span><input type="number" id="cfg_mult" value="2" min="1.1" max="5" step="0.1"></div></div>
-        <div><label>After LL Event</label>
-          <select id="cfg_reset"><option value="yes">Reset to base bet</option><option value="no">Keep martingaling</option></select></div>
-      </div>
-      <div class="btn-row mb16">
-        <button class="btn" onclick="runSim()">▶ Run Simulation</button>
-        <button class="btn btn-outline" onclick="switchTab('settings')">Edit Scenarios</button>
-      </div>
-      <div id="simResults" class="hidden fade">
-        <div class="panel mb16">
-          <div class="pt">Stats</div>
-          <div class="info-row" id="simStats"></div>
-          <div class="pt" style="margin-top:12px">Sequence Preview</div>
-          <div class="seq-prev" id="simSeqPrev"></div>
-        </div>
-        <div class="chart-box"><div class="pt">Bankroll Curve</div><div class="chart-h"><canvas id="simChart"></canvas></div></div>
-        <div class="rc-grid mt16" id="simRcGrid"></div>
-        <div class="verdict" id="simVerdict"></div>
-        <div class="btn-row mt16"><button class="btn btn-outline btn-sm" onclick="publishResult()">🏆 Publish to Leaderboard</button></div>
-      </div>
+    <div>
+      <label>Martingale Multiplier</label>
+      <div class="sfx"><span>×</span><input type="number" id="cfg_mult" value="2" min="1.1" max="5" step="0.1"></div>
     </div>
-
-    <div class="tab-panel hidden" id="tab-combined">
-      <div class="pt">Select Months to Combine</div>
-      <div class="pill-row" id="cmbPills"><span style="color:var(--muted);font-size:12px">Add months first →</span></div>
-      <div class="g3 mb16">
-        <div><label>Starting Capital ($)</label>
-          <div class="pfx"><span>$</span><input type="number" id="cmb_cap" value="200" min="1" step="10"></div></div>
-        <div><label>Martingale Multiplier</label>
-          <div class="sfx"><span>×</span><input type="number" id="cmb_mult" value="2" min="1.1" max="5" step="0.1"></div></div>
-        <div><label>After LL Event</label>
-          <select id="cmb_reset"><option value="yes">Reset to base bet</option><option value="no">Keep martingaling</option></select></div>
-      </div>
-      <div class="btn-row mb16"><button class="btn" onclick="runCombined()">▶ Run Combined Simulation</button></div>
-      <div id="cmbResults" class="hidden fade">
-        <div class="panel mb16"><div class="pt">Aggregate Stats</div><div class="info-row" id="cmbStats"></div></div>
-        <div class="chart-box"><div class="pt">Combined Bankroll Curve</div><div class="chart-h"><canvas id="cmbChart"></canvas></div></div>
-        <div class="rc-grid mt16" id="cmbRcGrid"></div>
-        <div class="verdict" id="cmbVerdict"></div>
-        <div class="panel mt16"><div class="pt">Per-Month Breakdown</div><div id="perMonthTable" style="overflow-x:auto"></div></div>
-      </div>
+    <div>
+      <label>After LL Event</label>
+      <select id="cfg_reset">
+        <option value="yes">Reset to base bet</option>
+        <option value="no">Keep martingaling</option>
+      </select>
     </div>
+  </div>
 
-    <div class="tab-panel hidden" id="tab-leaderboard">
-      <div class="pt">Community Leaderboard — Best Monthly Returns</div>
-      <div style="color:var(--muted);font-size:11px;margin-bottom:16px">Publish your simulation results to compare with other traders.</div>
-      <div id="leaderboardList"></div>
+  <div class="btn-row mb16">
+    <button class="btn" onclick="runSimulation()">▶ Run Simulation</button>
+    <button class="btn btn-outline" onclick="switchMainTab('settings')">Edit Scenarios</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="simResults" class="hidden fade">
+    <div class="panel mb16">
+      <div class="pt">Sequence Stats</div>
+      <div class="info-row" id="seqStats"></div>
+      <div class="pt" style="margin-top:12px;">Preview</div>
+      <div class="seq-prev" id="seqPreview"></div>
     </div>
-
-    <div class="tab-panel hidden" id="tab-settings">
-      <div class="pt">Comparison Scenarios</div>
-      <div class="sc-grid" id="scGrid"></div>
-      <div class="btn-row">
-        <button class="btn btn-outline btn-sm" onclick="resetScenarios()">Reset to Defaults</button>
-        <button class="btn btn-sm" onclick="saveScenarios()">💾 Save Scenarios</button>
-      </div>
+    <div class="chart-box">
+      <div class="pt">Bankroll Curve</div>
+      <div class="chart-h"><canvas id="simChart"></canvas></div>
     </div>
+    <div class="rc-grid mt16" id="rcGrid"></div>
+    <div class="verdict" id="verdictBox"></div>
+  </div>
+</div>
 
-    <div class="footer">
-      <div class="footer-left">Market Cipher · BTC M15 · Polymarket<br>1-Step Toggle Martingale Strategy</div>
-      <div class="footer-right">
-        <div class="fn">Alauddin Ahmed</div>
-        <div class="fw">+880 1724-501119</div>
-        <div style="margin-top:4px;font-size:10px;color:var(--muted2)">All rights reserved © 2026</div>
-      </div>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB: COMBINED VIEW -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="tab-panel fade hidden" id="tab-combined">
+  <div class="pt">Select Months to Include</div>
+  <div class="combined-month-list" id="combinedPills"></div>
+
+  <div class="g3 mb16">
+    <div>
+      <label>Starting Capital ($)</label>
+      <div class="pfx"><span>$</span><input type="number" id="cmb_capital" value="200" min="1" step="10"></div>
+    </div>
+    <div>
+      <label>Martingale Multiplier</label>
+      <div class="sfx"><span>×</span><input type="number" id="cmb_mult" value="2" min="1.1" max="5" step="0.1"></div>
+    </div>
+    <div>
+      <label>After LL Event</label>
+      <select id="cmb_reset">
+        <option value="yes">Reset to base bet</option>
+        <option value="no">Keep martingaling</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row mb16">
+    <button class="btn" onclick="runCombined()">▶ Run Combined Simulation</button>
+  </div>
+
+  <div id="cmbResults" class="hidden fade">
+    <div class="panel mb16">
+      <div class="pt">Aggregate Stats — All Selected Months</div>
+      <div class="info-row" id="cmbStats"></div>
+    </div>
+    <div class="chart-box">
+      <div class="pt">Combined Bankroll Curve</div>
+      <div class="chart-h"><canvas id="cmbChart"></canvas></div>
+    </div>
+    <div class="rc-grid mt16" id="cmbRcGrid"></div>
+    <div class="verdict" id="cmbVerdictBox"></div>
+
+    <!-- Per-month breakdown -->
+    <div class="panel mt16">
+      <div class="pt">Per-Month Breakdown (Best Scenario)</div>
+      <div id="perMonthTable" style="overflow-x:auto;"></div>
     </div>
   </div>
 </div>
 
-<div class="modal-bg" id="addModal">
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB: SETTINGS — SCENARIOS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="tab-panel fade hidden" id="tab-settings">
+  <div class="pt">Comparison Scenarios</div>
+  <div class="sc-grid" id="scGrid"></div>
+  <div class="btn-row">
+    <button class="btn btn-outline btn-sm" onclick="resetScenarios()">Reset to Defaults</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ADD MONTH MODAL -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-bg hidden" id="addModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-close" onclick="closeModal()">×</div>
     <h3 id="modalTitle">Add New Month</h3>
-    <div class="mb16"><label>Month Name</label><input type="text" id="mName" placeholder="e.g. January 2026"></div>
+    <div class="mb16">
+      <label>Month Name</label>
+      <input type="text" id="mName" placeholder="e.g. January 2026, Feb 2026...">
+    </div>
     <div class="mb16">
       <label>W/L Sequence (space or comma separated)</label>
-      <textarea id="mSeq" rows="5" placeholder="W L L W W L W W L L W..."></textarea>
+      <textarea id="mSeq" rows="5" placeholder="W L L W W L W W L L W W W..."></textarea>
     </div>
-    <div style="margin-bottom:14px">
-      <div style="font-size:10px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Preview</div>
-      <div class="seq-prev" id="modalPrev" style="min-height:20px;background:var(--bg3);padding:8px 10px;border-radius:6px"></div>
-    </div>
+    <div class="seq-prev" id="modalPreview" style="margin-bottom:14px;min-height:24px;"></div>
     <div class="btn-row">
-      <button class="btn" id="saveMonthBtn" onclick="saveMonth()">Save Month</button>
+      <button class="btn" onclick="saveMonth()">Save Month</button>
       <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════ JAVASCRIPT ═══════════════ -->
-<script>
-// ── CONFIG: replace with your Supabase values ──
-var SUPA_URL  = https://wdlbdvtnbrwudjeqxxug.supabase.co;
-var SUPA_KEY  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkbGJkdnRuYnJ3dWRqZXF4eHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTIzMjEsImV4cCI6MjA4ODIyODMyMX0.ISK3h73UehKrPokCcqhJsWoxUI4fhbJT5FZHRCUYS-Y;
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">
+    Market Cipher · BTC M15 · Polymarket<br>
+    1-Step Toggle Martingale Strategy
+  </div>
+  <div class="footer-right">
+    <div class="fn">Alauddin Ahmed</div>
+    <div class="fw">+880 1724-501119</div>
+    <div style="margin-top:4px;font-size:10px;color:var(--muted2);">All rights reserved © 2026</div>
+  </div>
+</div>
 
-// ── CONSTANTS ──
-var FEB = 'W L L W L L L L L W W L W W W W W W W L L W W W W L L L W W W W W L W L W W L W L W W W W L W L W W L W L L W L W L W W W W W W W W W W W L L L W W W W L W L W L L L W W W L W W L W L W L W W W L W W';
-var SC_COL = {
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+const FEB_DATA = 'W L L W L L L L L W W L W W W W W W W L L W W W W L L L W W W W W L W L W W L W L W W W W L W L W W L W L L W L W L W W W W W W W W W W W L L L W W W W L W L W L L L W W W L W W L W L W L W W W L W W';
+
+const SC_COLORS = {
   s1:{c:'#ff4060',bg:'rgba(255,64,96,.07)',glow:'rgba(255,64,96,.12)'},
   s2:{c:'#ffb800',bg:'rgba(255,184,0,.07)',glow:'rgba(255,184,0,.1)'},
   s3:{c:'#38aaff',bg:'rgba(56,170,255,.07)',glow:'rgba(56,170,255,.1)'},
-  s4:{c:'#00e5aa',bg:'rgba(0,229,170,.07)',glow:'rgba(0,229,170,.15)'}
+  s4:{c:'#00e5aa',bg:'rgba(0,229,170,.07)',glow:'rgba(0,229,170,.15)'},
 };
 
-// ── STATE ──
-var db, currentUser;
-var months = [];
-var scenarios = defScenarios();
-var selSim = null, selCmb = [], editId = null;
-var simCh = null, cmbCh = null, lastRes = null;
+let scenarios = loadScenarios();
+let months = loadMonths();
+let simChartInst = null;
+let cmbChartInst = null;
+let editingMonth = null; // id of month being edited
+let selectedSimMonth = null;
+let selectedCmbMonths = [];
 
-function defScenarios(){
-  return[
-    {id:'s1',label:'Static $10',sub:'Fixed dollar',type:'static',bet:10,pct:null,on:true},
-    {id:'s2',label:'Static $4',sub:'Fixed dollar',type:'static',bet:4,pct:null,on:true},
-    {id:'s3',label:'Dynamic 5%',sub:'% of bankroll',type:'dynamic',bet:null,pct:5,on:true},
-    {id:'s4',label:'Dynamic 2% ★',sub:'% of bankroll',type:'dynamic',bet:null,pct:2,on:true}
+// ═══════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════
+function loadScenarios() {
+  try {
+    const s = localStorage.getItem('rc_scenarios');
+    if (s) return JSON.parse(s);
+  } catch(e){}
+  return defaultScenarios();
+}
+function saveScenarios() { localStorage.setItem('rc_scenarios', JSON.stringify(scenarios)); }
+function defaultScenarios() {
+  return [
+    {id:'s1',label:'Static $10',sub:'Fixed dollar amount',type:'static',bet:10,pct:null,on:true},
+    {id:'s2',label:'Static $4',sub:'Fixed dollar amount',type:'static',bet:4,pct:null,on:true},
+    {id:'s3',label:'Dynamic 5%',sub:'% of current bankroll',type:'dynamic',bet:null,pct:5,on:true},
+    {id:'s4',label:'Dynamic 2% ★',sub:'% of current bankroll',type:'dynamic',bet:null,pct:2,on:true},
   ];
 }
 
-// ── SCREEN SWITCHING ──
-function screen(id){
-  document.getElementById('S_LOAD').style.display = id==='load' ? 'block' : 'none';
-  document.getElementById('S_AUTH').style.display = id==='auth' ? 'block' : 'none';
-  document.getElementById('S_APP').style.display  = id==='app'  ? 'block' : 'none';
+function loadMonths() {
+  try {
+    const m = localStorage.getItem('rc_months');
+    if (m) return JSON.parse(m);
+  } catch(e){}
+  return [];
+}
+function saveMonthsStorage() { localStorage.setItem('rc_months', JSON.stringify(months)); }
+
+// ═══════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════
+function switchMainTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  const panel = document.getElementById('tab-'+name);
+  panel.classList.remove('hidden');
+  panel.classList.add('fade');
+
+  if(name==='simulate') refreshSimPills();
+  if(name==='combined') refreshCombinedPills();
+  if(name==='settings') renderScenarios();
+  if(name==='months') renderMonthGrid();
 }
 
-// ── AUTH ──
-var authMode = 'login';
-function setAuthTab(m){
-  authMode=m;
-  document.querySelectorAll('.auth-tab').forEach(function(t,i){t.classList.toggle('active',(i===0&&m==='login')||(i===1&&m==='signup'));});
-  document.getElementById('authBtn').textContent=m==='login'?'Login':'Create Account';
-  document.getElementById('nameField').style.display=m==='signup'?'block':'none';
-  document.getElementById('authMsg').className='auth-msg hidden';
-}
-function authMsg(txt,type){
-  var el=document.getElementById('authMsg');
-  el.textContent=txt;el.className='auth-msg '+type;
-}
-function doAuth(){
-  var email=document.getElementById('authEmail').value.trim();
-  var pass=document.getElementById('authPass').value;
-  var name=document.getElementById('authName').value.trim();
-  var btn=document.getElementById('authBtn');
-  if(!email||!pass){authMsg('Please fill in all fields.','err');return;}
-  if(authMode==='signup'&&!name){authMsg('Please enter your name.','err');return;}
-  btn.disabled=true;btn.textContent='Please wait...';
-  if(authMode==='login'){
-    db.auth.signInWithPassword({email:email,password:pass}).then(function(r){
-      if(r.error){authMsg(r.error.message,'err');btn.disabled=false;btn.textContent='Login';}
-    });
-  } else {
-    db.auth.signUp({email:email,password:pass,options:{data:{full_name:name}}}).then(function(r){
-      if(r.error){authMsg(r.error.message,'err');btn.disabled=false;btn.textContent='Create Account';}
-      else{authMsg('Account created! Check your email to confirm, then login.','ok');btn.disabled=false;btn.textContent='Create Account';}
-    });
-  }
-}
-function logout(){
-  db.auth.signOut().then(function(){
-    currentUser=null;months=[];scenarios=defScenarios();screen('auth');
-  });
+// ═══════════════════════════════════════════════════════════
+// MONTH MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+function parseTrades(raw) {
+  return raw.trim().toUpperCase().replace(/,/g,' ').split(/\s+/).filter(t=>t==='W'||t==='L');
 }
 
-// ── DB ──
-function loadAll(cb){
-  var p1=db.from('risk_months').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:true});
-  var p2=db.from('risk_scenarios').select('scenarios').eq('user_id',currentUser.id).single();
-  Promise.all([p1,p2]).then(function(results){
-    if(results[0].data) months=results[0].data;
-    if(results[1].data&&results[1].data.scenarios) scenarios=results[1].data.scenarios;
-    cb();
-  }).catch(function(e){console.warn('loadAll error',e);cb();});
-}
-function dbAdd(name,seq,cb){
-  db.from('risk_months').insert({user_id:currentUser.id,name:name,seq:seq,added:new Date().toLocaleDateString('en-GB')}).select().single().then(function(r){
-    if(r.error){alert('Save error: '+r.error.message);cb(null);}
-    else cb(r.data);
-  });
-}
-function dbUpdate(id,name,seq,cb){
-  db.from('risk_months').update({name:name,seq:seq}).eq('id',id).eq('user_id',currentUser.id).then(function(){cb&&cb();});
-}
-function dbDelete(id,cb){
-  db.from('risk_months').delete().eq('id',id).eq('user_id',currentUser.id).then(function(){cb&&cb();});
-}
-function saveScenarios(){
-  db.from('risk_scenarios').upsert({user_id:currentUser.id,scenarios:scenarios,updated_at:new Date().toISOString()},{onConflict:'user_id'}).then(function(){sync('✓ Saved');});
-}
-function publishResult(){
-  if(!lastRes)return;
-  var acts=lastRes.active,res=lastRes.results,cap=lastRes.capital,tc=lastRes.tradeCnt,mn=lastRes.monthName;
-  var best=acts.slice().sort(function(a,b){return(res[b.id].returnPct-res[b.id].maxDD*1.2)-(res[a.id].returnPct-res[a.id].maxDD*1.2);})[0];
-  var rb=res[best.id];
-  var uname=currentUser.user_metadata&&currentUser.user_metadata.full_name?currentUser.user_metadata.full_name:currentUser.email;
-  db.from('risk_leaderboard').insert({user_id:currentUser.id,user_name:uname,month_name:mn,return_pct:rb.returnPct,max_dd:rb.maxDD,final_balance:rb.final,trades:tc,starting_capital:cap,scenario_label:best.label,scenario_config:best.type==='static'?'$'+best.bet:best.pct+'%'}).then(function(r){
-    if(r.error)alert('Publish error: '+r.error.message);
-    else{sync('✓ Published!');switchTab('leaderboard');}
-  });
-}
-function loadLeaderboard(){
-  var el=document.getElementById('leaderboardList');
-  el.innerHTML='<div style="color:var(--muted);padding:20px 0;font-size:12px">Loading...</div>';
-  db.from('risk_leaderboard').select('*').order('return_pct',{ascending:false}).limit(50).then(function(r){
-    if(r.error||!r.data||!r.data.length){el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:20px 0">No results yet. Run a simulation and publish it!</div>';return;}
-    el.innerHTML=r.data.map(function(row,i){
-      var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'<span style="color:var(--muted)">'+(i+1)+'</span>';
-      var rc=row.return_pct>=0?'var(--green)':'var(--red)';
-      var dc=row.max_dd>30?'var(--red)':row.max_dd>15?'var(--yellow)':'var(--green)';
-      return'<div class="lb-row"><div class="lb-rank">'+medal+'</div><div><div style="font-family:var(--sans);font-weight:700;font-size:13px;color:#e8f4ff">'+row.user_name+'</div><div style="font-size:10px;color:var(--muted)">'+row.month_name+' · '+row.trades+' trades · $'+row.starting_capital+' · '+row.scenario_label+'</div></div><div style="color:'+rc+';font-weight:700;font-size:14px">'+(row.return_pct>=0?'+':'')+row.return_pct+'%</div><div style="color:'+dc+';font-size:12px">DD -'+row.max_dd+'%</div><div style="color:var(--green);font-size:12px">$'+(row.final_balance?row.final_balance.toFixed(0):'?')+'</div></div>';
-    }).join('');
-  });
-}
-
-// ── MONTHS UI ──
-function renderMonthGrid(){
-  var g=document.getElementById('monthGrid');
-  var h=months.map(function(m){
-    var t=parseTrades(m.seq),w=t.filter(function(x){return x==='W';}).length;
-    var wr=t.length?Math.round(w/t.length*1000)/10:0;
-    var wc=wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
-    return'<div class="month-card'+(selSim===m.id?' selected':'')+'" onclick="selectMonth(\''+m.id+'\')">'+
-      '<button class="mc-del" onclick="event.stopPropagation();delMonth(\''+m.id+'\')">×</button>'+
-      '<div class="mc-name">'+m.name+'</div>'+
-      '<div class="mc-stats">'+t.length+' trades · '+w+'W '+(t.length-w)+'L<br><span style="color:var(--muted2)">Added '+(m.added||'—')+'</span></div>'+
-      '<div class="mc-wr" style="color:'+wc+'">⚡ '+wr+'% win rate</div>'+
-      '<div style="display:flex;gap:6px;margin-top:10px">'+
-        '<button class="btn btn-sm btn-outline" style="flex:1;font-size:10px" onclick="event.stopPropagation();openAddMonth(\''+m.id+'\')">Edit</button>'+
-        '<button class="btn btn-sm" style="flex:1;font-size:10px" onclick="event.stopPropagation();quickSim(\''+m.id+'\')">Simulate</button>'+
-      '</div></div>';
+function renderMonthGrid() {
+  const grid = document.getElementById('monthGrid');
+  let html = months.map(m => {
+    const trades = parseTrades(m.seq);
+    const w = trades.filter(t=>t==='W').length;
+    const l = trades.filter(t=>t==='L').length;
+    const wr = trades.length ? Math.round(w/trades.length*1000)/10 : 0;
+    const wrColor = wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
+    return `
+    <div class="month-card ${selectedSimMonth===m.id?'selected':''}" onclick="selectSimMonth('${m.id}')">
+      <div class="mc-del" onclick="event.stopPropagation();deleteMonth('${m.id}')" title="Delete">×</div>
+      <div class="mc-name">${m.name}</div>
+      <div class="mc-stats">
+        ${trades.length} trades · ${w}W ${l}L<br>
+        <span style="color:var(--muted)">Added ${m.added||'—'}</span>
+      </div>
+      <div class="mc-wr" style="color:${wrColor}">⚡ ${wr}% win rate</div>
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button class="btn btn-sm btn-outline" style="flex:1;font-size:10px" onclick="event.stopPropagation();editMonth('${m.id}')">Edit</button>
+        <button class="btn btn-sm" style="flex:1;font-size:10px" onclick="event.stopPropagation();quickSim('${m.id}')">Simulate</button>
+      </div>
+    </div>`;
   }).join('');
-  h+='<div class="month-card add-card" onclick="openAddMonth()"><div class="plus">+</div>Add New Month</div>';
-  g.innerHTML=h;
+  html += `<div class="month-card add-card" onclick="openAddMonth()">
+    <div class="plus">+</div>Add New Month</div>`;
+  grid.innerHTML = html;
 }
-function openAddMonth(id){
-  editId=id||null;
-  document.getElementById('modalTitle').textContent=id?'Edit Month':'Add New Month';
-  if(id){var m=months.find(function(x){return x.id===id;});document.getElementById('mName').value=m.name;document.getElementById('mSeq').value=m.seq;updatePrev(m.seq);}
-  else{document.getElementById('mName').value='';document.getElementById('mSeq').value='';document.getElementById('modalPrev').innerHTML='';}
-  document.getElementById('addModal').classList.add('open');
-  setTimeout(function(){document.getElementById('mName').focus();},100);
-}
-function closeModal(){document.getElementById('addModal').classList.remove('open');editId=null;}
-document.getElementById('mSeq').addEventListener('input',function(){updatePrev(this.value);});
-function updatePrev(raw){document.getElementById('modalPrev').innerHTML=seqHtml(parseTrades(raw));}
-function saveMonth(){
-  var name=document.getElementById('mName').value.trim();
-  var seq=document.getElementById('mSeq').value.trim();
-  if(!name){alert('Please enter a month name.');return;}
-  if(parseTrades(seq).length<2){alert('Please enter at least 2 trades.');return;}
-  var btn=document.getElementById('saveMonthBtn');
-  btn.disabled=true;btn.textContent='Saving...';
-  if(editId){
-    dbUpdate(editId,name,seq,function(){
-      var m=months.find(function(x){return x.id===editId;});if(m){m.name=name;m.seq=seq;}
-      btn.disabled=false;btn.textContent='Save Month';
-      closeModal();renderMonthGrid();refreshPills();sync('✓ Saved');
-    });
+
+function openAddMonth(id) {
+  editingMonth = id || null;
+  const modal = document.getElementById('addModal');
+  document.getElementById('modalTitle').textContent = id ? 'Edit Month' : 'Add New Month';
+  if(id) {
+    const m = months.find(x=>x.id===id);
+    document.getElementById('mName').value = m.name;
+    document.getElementById('mSeq').value = m.seq;
+    updateModalPreview(m.seq);
   } else {
-    dbAdd(name,seq,function(data){
-      if(data)months.push(data);
-      btn.disabled=false;btn.textContent='Save Month';
-      closeModal();renderMonthGrid();refreshPills();sync('✓ Saved');
-    });
+    document.getElementById('mName').value = '';
+    document.getElementById('mSeq').value = '';
+    document.getElementById('modalPreview').innerHTML = '';
   }
+  modal.classList.remove('hidden');
+  setTimeout(()=>document.getElementById('mName').focus(),100);
 }
-function delMonth(id){
-  if(!confirm('Delete this month?'))return;
-  dbDelete(id,function(){
-    months=months.filter(function(m){return m.id!==id;});
-    if(selSim===id)selSim=null;
-    selCmb=selCmb.filter(function(x){return x!==id;});
-    renderMonthGrid();refreshPills();
-  });
-}
-function loadFebDemo(){
-  if(months.find(function(m){return m.name==='Feb 2026';})){alert('Feb 2026 already loaded!');return;}
-  dbAdd('Feb 2026',FEB,function(data){if(data){months.push(data);renderMonthGrid();refreshPills();sync('✓ Loaded');}});
-}
-function selectMonth(id){selSim=id;renderMonthGrid();switchTab('simulate');}
-function quickSim(id){selSim=id;switchTab('simulate');setTimeout(runSim,100);}
-function sync(msg){var el=document.getElementById('syncStatus');el.textContent=msg;setTimeout(function(){el.textContent='';},3000);}
+function editMonth(id) { openAddMonth(id); }
+function closeModal() { document.getElementById('addModal').classList.add('hidden'); editingMonth=null; }
 
-// ── PILLS ──
-function refreshPills(){
-  var sp=document.getElementById('simPills'),cp=document.getElementById('cmbPills');
-  if(!months.length){sp.innerHTML='<span style="color:var(--muted);font-size:12px">Add months first →</span>';cp.innerHTML=sp.innerHTML;return;}
-  sp.innerHTML=months.map(function(m){return'<div class="pill'+(selSim===m.id?' on':'')+'" onclick="selSimPill(\''+m.id+'\')">'+m.name+'</div>';}).join('');
-  cp.innerHTML=months.map(function(m){return'<div class="pill'+(selCmb.indexOf(m.id)>-1?' on':'')+'" onclick="togCmb(\''+m.id+'\')">'+m.name+'</div>';}).join('');
-}
-function selSimPill(id){selSim=id;refreshPills();renderMonthGrid();}
-function togCmb(id){
-  var i=selCmb.indexOf(id);
-  if(i>-1)selCmb.splice(i,1);else selCmb.push(id);
-  refreshPills();
+document.getElementById('mSeq').addEventListener('input', function() {
+  updateModalPreview(this.value);
+});
+function updateModalPreview(raw) {
+  const trades = parseTrades(raw);
+  document.getElementById('modalPreview').innerHTML = buildSeqHtml(trades);
 }
 
-// ── SIM ENGINE ──
-function parseTrades(raw){return raw.trim().toUpperCase().replace(/,/g,' ').split(/\s+/).filter(function(t){return t==='W'||t==='L';});}
-function simulate(trades,isDynamic,pct,bet,cap,mult,resetLL){
-  var b=cap,inM=false,base=0,peak=cap,mxDD=0,mxDDD=0,wins=0,losses=0,rec=0,ll=0;
-  var hist=[cap];
-  for(var i=0;i<trades.length;i++){
-    if(!inM)base=isDynamic?b*(pct/100):bet;
-    var stake=inM?base*mult:base;
-    if(trades[i]==='W'){b+=stake;if(inM)rec++;else wins++;inM=false;}
-    else{b-=stake;if(inM){ll++;if(resetLL)inM=false;}else{losses++;inM=true;}}
-    b=Math.max(b,0);if(b>peak)peak=b;
-    var dd=((peak-b)/peak)*100,ddd=peak-b;
-    if(dd>mxDD)mxDD=dd;if(ddd>mxDDD)mxDDD=ddd;
-    hist.push(Math.round(b*100)/100);
+function saveMonth() {
+  const name = document.getElementById('mName').value.trim();
+  const seq = document.getElementById('mSeq').value.trim();
+  if(!name) { alert('Please enter a month name.'); return; }
+  if(parseTrades(seq).length < 2) { alert('Please enter at least 2 trades.'); return; }
+
+  if(editingMonth) {
+    const m = months.find(x=>x.id===editingMonth);
+    if(m) { m.name=name; m.seq=seq; }
+  } else {
+    months.push({ id:'m_'+Date.now(), name, seq, added: new Date().toLocaleDateString('en-GB') });
   }
-  var final=Math.round(b*100)/100;
-  return{hist:hist,final:final,maxDD:Math.round(mxDD*10)/10,maxDDD:Math.round(mxDDD*100)/100,returnPct:Math.round(((final-cap)/cap)*1000)/10,profit:Math.round((final-cap)*100)/100,wins:wins,losses:losses,rec:rec,ll:ll};
+  saveMonthsStorage();
+  closeModal();
+  renderMonthGrid();
+  refreshSimPills();
+  refreshCombinedPills();
 }
-function getActive(){return scenarios.filter(function(s){return s.on;});}
 
-function runSim(){
-  if(!selSim){alert('Select a month first.');return;}
-  var m=months.find(function(x){return x.id===selSim;});if(!m)return;
-  var trades=parseTrades(m.seq),cap=+document.getElementById('cfg_cap').value||200;
-  var mult=+document.getElementById('cfg_mult').value||2;
-  var resetLL=document.getElementById('cfg_reset').value==='yes';
-  var acts=getActive();if(!acts.length){alert('Enable at least one scenario.');return;}
-  var res={};acts.forEach(function(s){res[s.id]=simulate(trades,s.type==='dynamic',s.pct,s.bet,cap,mult,resetLL);});
-  lastRes={active:acts,results:res,capital:cap,tradeCnt:trades.length,monthName:m.name};
-  var w=trades.filter(function(t){return t==='W';}).length;
-  document.getElementById('simStats').innerHTML=srow([['Month',m.name,'var(--green)'],['Trades',trades.length],['Wins',w,'var(--green)'],['Losses',trades.length-w,'var(--red)'],['Win Rate',Math.round(w/trades.length*1000)/10+'%'],['Capital','$'+cap],['Mart',mult+'×']]);
-  document.getElementById('simSeqPrev').innerHTML=seqHtml(trades);
-  drawChart('simChart',acts,res,trades.length,simCh,function(c){simCh=c;});
-  drawCards('simRcGrid',acts,res);
-  drawVerdict('simVerdict',acts,res,trades);
+function deleteMonth(id) {
+  if(!confirm('Delete this month\'s data?')) return;
+  months = months.filter(m=>m.id!==id);
+  if(selectedSimMonth===id) selectedSimMonth=null;
+  selectedCmbMonths = selectedCmbMonths.filter(x=>x!==id);
+  saveMonthsStorage();
+  renderMonthGrid();
+  refreshSimPills();
+  refreshCombinedPills();
+}
+
+function loadPresetMonth() {
+  if(months.find(m=>m.name==='Feb 2026')) { alert('Feb 2026 already loaded!'); return; }
+  months.push({ id:'m_feb2026', name:'Feb 2026', seq:FEB_DATA, added:'Demo' });
+  saveMonthsStorage();
+  renderMonthGrid();
+  refreshSimPills();
+  refreshCombinedPills();
+}
+
+function selectSimMonth(id) {
+  selectedSimMonth = id;
+  renderMonthGrid();
+  switchMainTab('simulate');
+}
+
+function quickSim(id) {
+  selectedSimMonth = id;
+  switchMainTab('simulate');
+  setTimeout(runSimulation, 100);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SIMULATION PILLS
+// ═══════════════════════════════════════════════════════════
+function refreshSimPills() {
+  const wrap = document.getElementById('simMonthPills');
+  if(!months.length) {
+    wrap.innerHTML = '<span style="color:var(--muted);font-size:12px;">Add months in the Monthly Data tab first.</span>';
+    return;
+  }
+  wrap.innerHTML = months.map(m => `
+    <div class="cm-tag ${selectedSimMonth===m.id?'on':''}" onclick="selectSimPill('${m.id}')">${m.name}</div>
+  `).join('');
+}
+function selectSimPill(id) {
+  selectedSimMonth = id;
+  refreshSimPills();
+  renderMonthGrid();
+}
+
+function refreshCombinedPills() {
+  const wrap = document.getElementById('combinedPills');
+  if(!months.length) {
+    wrap.innerHTML = '<span style="color:var(--muted);font-size:12px;">Add months in the Monthly Data tab first.</span>';
+    return;
+  }
+  wrap.innerHTML = months.map(m => `
+    <div class="cm-tag ${selectedCmbMonths.includes(m.id)?'on':''}" onclick="toggleCmbMonth('${m.id}')">${m.name}</div>
+  `).join('');
+}
+function toggleCmbMonth(id) {
+  if(selectedCmbMonths.includes(id)) selectedCmbMonths = selectedCmbMonths.filter(x=>x!==id);
+  else selectedCmbMonths.push(id);
+  refreshCombinedPills();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SIMULATION ENGINE
+// ═══════════════════════════════════════════════════════════
+function runSim(trades, isDynamic, pct, staticBet, startCapital, martMult, resetAfterLL) {
+  let b = startCapital, inMart = false, base = 0, peak = startCapital;
+  let maxDD=0, maxDDDollar=0, wins=0, losses=0, recoveries=0, llEvents=0;
+  const history = [startCapital];
+
+  for(let i=0;i<trades.length;i++){
+    if(!inMart) base = isDynamic ? b*(pct/100) : staticBet;
+    const bet = inMart ? base*martMult : base;
+    if(trades[i]==='W'){
+      b += bet;
+      if(inMart) recoveries++; else wins++;
+      inMart = false;
+    } else {
+      b -= bet;
+      if(inMart){ llEvents++; if(resetAfterLL) inMart=false; }
+      else { losses++; inMart=true; }
+    }
+    b = Math.max(b,0);
+    if(b>peak) peak=b;
+    const dd=((peak-b)/peak)*100, ddD=peak-b;
+    if(dd>maxDD) maxDD=dd;
+    if(ddD>maxDDDollar) maxDDDollar=ddD;
+    history.push(Math.round(b*100)/100);
+  }
+  const final = Math.round(b*100)/100;
+  return { history, final, maxDD:Math.round(maxDD*10)/10, maxDDDollar:Math.round(maxDDDollar*100)/100,
+    returnPct:Math.round(((final-startCapital)/startCapital)*1000)/10,
+    profit:Math.round((final-startCapital)*100)/100, wins,losses,recoveries,llEvents };
+}
+
+function getActiveScenarios() { return scenarios.filter(s=>s.on); }
+
+function runSimulation() {
+  if(!selectedSimMonth) { alert('Please select a month first.'); return; }
+  const m = months.find(x=>x.id===selectedSimMonth);
+  if(!m) { alert('Month not found.'); return; }
+
+  const trades = parseTrades(m.seq);
+  const capital = +document.getElementById('cfg_capital').value||200;
+  const mult = +document.getElementById('cfg_mult').value||2;
+  const reset = document.getElementById('cfg_reset').value==='yes';
+  const active = getActiveScenarios();
+  if(!active.length){ alert('Enable at least one scenario in the Scenarios tab.'); return; }
+
+  const results = {};
+  active.forEach(s => results[s.id] = runSim(trades,s.type==='dynamic',s.pct,s.bet,capital,mult,reset));
+
+  // Stats
+  const w=trades.filter(t=>t==='W').length, l=trades.filter(t=>t==='L').length;
+  document.getElementById('seqStats').innerHTML = `
+    <div class="ii"><div class="il">Month</div><div class="iv" style="color:var(--green)">${m.name}</div></div>
+    <div class="ii"><div class="il">Trades</div><div class="iv">${trades.length}</div></div>
+    <div class="ii"><div class="il">Wins</div><div class="iv" style="color:var(--green)">${w}</div></div>
+    <div class="ii"><div class="il">Losses</div><div class="iv" style="color:var(--red)">${l}</div></div>
+    <div class="ii"><div class="il">Win Rate</div><div class="iv">${Math.round(w/trades.length*1000)/10}%</div></div>
+    <div class="ii"><div class="il">Capital</div><div class="iv">$${capital}</div></div>
+    <div class="ii"><div class="il">Mart ×</div><div class="iv">${mult}</div></div>`;
+  document.getElementById('seqPreview').innerHTML = buildSeqHtml(trades);
+
+  renderChart('simChart', active, results, trades.length, capital, simChartInst, inst=>simChartInst=inst);
+  renderResultCards('rcGrid', active, results, capital);
+  renderVerdict('verdictBox', active, results, capital, trades);
   document.getElementById('simResults').classList.remove('hidden');
   document.getElementById('simResults').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function runCombined(){
-  if(!selCmb.length){alert('Select at least one month.');return;}
-  var selMs=selCmb.map(function(id){return months.find(function(m){return m.id===id;});}).filter(Boolean);
-  var allT=[];selMs.forEach(function(m){allT=allT.concat(parseTrades(m.seq));});
-  var cap=+document.getElementById('cmb_cap').value||200;
-  var mult=+document.getElementById('cmb_mult').value||2;
-  var resetLL=document.getElementById('cmb_reset').value==='yes';
-  var acts=getActive();if(!acts.length){alert('Enable at least one scenario.');return;}
-  var res={};acts.forEach(function(s){res[s.id]=simulate(allT,s.type==='dynamic',s.pct,s.bet,cap,mult,resetLL);});
-  var w=allT.filter(function(t){return t==='W';}).length;
-  document.getElementById('cmbStats').innerHTML=srow([['Months',selMs.length,'var(--blue)'],['Total Trades',allT.length],['Wins',w,'var(--green)'],['Losses',allT.length-w,'var(--red)'],['Win Rate',Math.round(w/allT.length*1000)/10+'%'],['Capital','$'+cap]]);
-  drawChart('cmbChart',acts,res,allT.length,cmbCh,function(c){cmbCh=c;});
-  drawCards('cmbRcGrid',acts,res);
-  drawVerdict('cmbVerdict',acts,res,allT);
-  var best=acts.slice().sort(function(a,b){return(res[b.id].returnPct-res[b.id].maxDD*1.2)-(res[a.id].returnPct-res[a.id].maxDD*1.2);})[0];
-  var runCap=cap,tbl='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="border-bottom:1px solid var(--border2)">'+['Month','Trades','Win%','Final $','Return','Max DD%','Rec','LL'].map(function(h){return'<th style="text-align:left;padding:6px 10px;color:var(--muted);font-size:10px">'+h+'</th>';}).join('')+'</tr></thead><tbody>';
-  selMs.forEach(function(m){
-    var t=parseTrades(m.seq),r=simulate(t,best.type==='dynamic',best.pct,best.bet,runCap,mult,resetLL);
-    var wr=Math.round(t.filter(function(x){return x==='W';}).length/t.length*1000)/10;
-    var wc=wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
-    var rc=r.returnPct>=0?'var(--green)':'var(--red)';
-    var dc=r.maxDD>30?'var(--red)':r.maxDD>15?'var(--yellow)':'var(--green)';
-    tbl+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 10px;font-weight:700;color:'+SC_COL[best.id].c+'">'+m.name+'</td><td style="padding:8px 10px">'+t.length+'</td><td style="padding:8px 10px;color:'+wc+'">'+wr+'%</td><td style="padding:8px 10px;color:'+rc+'">$'+r.final.toFixed(0)+'</td><td style="padding:8px 10px;color:'+rc+'">'+(r.returnPct>=0?'+':'')+r.returnPct+'%</td><td style="padding:8px 10px;color:'+dc+'">-'+r.maxDD+'%</td><td style="padding:8px 10px;color:var(--green)">'+r.rec+'</td><td style="padding:8px 10px;color:var(--red)">'+r.ll+'</td></tr>';
-    runCap=r.final;
+// ═══════════════════════════════════════════════════════════
+// COMBINED SIMULATION
+// ═══════════════════════════════════════════════════════════
+function runCombined() {
+  if(selectedCmbMonths.length<1){ alert('Select at least one month.'); return; }
+  const capital = +document.getElementById('cmb_capital').value||200;
+  const mult = +document.getElementById('cmb_mult').value||2;
+  const reset = document.getElementById('cmb_reset').value==='yes';
+  const active = getActiveScenarios();
+  if(!active.length){ alert('Enable at least one scenario.'); return; }
+
+  // Concatenate all selected months
+  const selectedMs = selectedCmbMonths.map(id=>months.find(m=>m.id===id)).filter(Boolean);
+  const allTrades = selectedMs.flatMap(m=>parseTrades(m.seq));
+
+  const results = {};
+  active.forEach(s => results[s.id] = runSim(allTrades,s.type==='dynamic',s.pct,s.bet,capital,mult,reset));
+
+  const w=allTrades.filter(t=>t==='W').length, l=allTrades.filter(t=>t==='L').length;
+  document.getElementById('cmbStats').innerHTML = `
+    <div class="ii"><div class="il">Months</div><div class="iv" style="color:var(--blue)">${selectedMs.length}</div></div>
+    <div class="ii"><div class="il">Total Trades</div><div class="iv">${allTrades.length}</div></div>
+    <div class="ii"><div class="il">Total Wins</div><div class="iv" style="color:var(--green)">${w}</div></div>
+    <div class="ii"><div class="il">Total Losses</div><div class="iv" style="color:var(--red)">${l}</div></div>
+    <div class="ii"><div class="il">Win Rate</div><div class="iv">${Math.round(w/allTrades.length*1000)/10}%</div></div>
+    <div class="ii"><div class="il">Capital</div><div class="iv">$${capital}</div></div>`;
+
+  renderChart('cmbChart', active, results, allTrades.length, capital, cmbChartInst, inst=>cmbChartInst=inst);
+  renderResultCards('cmbRcGrid', active, results, capital);
+  renderVerdict('cmbVerdictBox', active, results, capital, allTrades);
+
+  // Per-month breakdown for best scenario
+  const sortedSc = [...active].sort((a,b)=>{
+    const ra=results[a.id],rb=results[b.id];
+    return (rb.returnPct - rb.maxDD*1.2) - (ra.returnPct - ra.maxDD*1.2);
   });
-  document.getElementById('perMonthTable').innerHTML=tbl+'</tbody></table>';
+  const bestSc = sortedSc[0];
+  const bc = SC_COLORS[bestSc.id];
+  let tableHtml = `<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="border-bottom:1px solid var(--border2)">
+      ${['Month','Trades','Win%','Final $','Return','Max DD%','Recoveries','LL Events'].map(h=>`<th style="text-align:left;padding:6px 10px;color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase">${h}</th>`).join('')}
+    </tr></thead><tbody>`;
+
+  let runningCapital = capital;
+  selectedMs.forEach(m => {
+    const trades = parseTrades(m.seq);
+    const r = runSim(trades,bestSc.type==='dynamic',bestSc.pct,bestSc.bet,runningCapital,mult,reset);
+    const w = trades.filter(t=>t==='W').length;
+    const wr = Math.round(w/trades.length*1000)/10;
+    const wrC = wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
+    const retC = r.returnPct>=0?'var(--green)':'var(--red)';
+    const ddC = r.maxDD>30?'var(--red)':r.maxDD>15?'var(--yellow)':'var(--green)';
+    tableHtml += `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 10px;font-weight:700;color:${bc.c}">${m.name}</td>
+      <td style="padding:8px 10px">${trades.length}</td>
+      <td style="padding:8px 10px;color:${wrC}">${wr}%</td>
+      <td style="padding:8px 10px;color:${retC}">$${r.final.toFixed(0)}</td>
+      <td style="padding:8px 10px;color:${retC}">${r.returnPct>=0?'+':''}${r.returnPct}%</td>
+      <td style="padding:8px 10px;color:${ddC}">-${r.maxDD}%</td>
+      <td style="padding:8px 10px;color:var(--green)">${r.recoveries}</td>
+      <td style="padding:8px 10px;color:var(--red)">${r.llEvents}</td>
+    </tr>`;
+    runningCapital = r.final; // carry forward for chained simulation
+  });
+  tableHtml += '</tbody></table>';
+  document.getElementById('perMonthTable').innerHTML = tableHtml;
+
   document.getElementById('cmbResults').classList.remove('hidden');
   document.getElementById('cmbResults').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ── CHART ──
-function drawChart(canvasId,acts,res,total,prev,setter){
-  if(prev)prev.destroy();
-  var ctx=document.getElementById(canvasId).getContext('2d');
-  setter(new Chart(ctx,{type:'line',
-    data:{labels:Array.from({length:total+1},function(_,i){return i;}),
-      datasets:acts.map(function(s){return{label:s.label,data:res[s.id].hist,borderColor:SC_COL[s.id].c,backgroundColor:'transparent',borderWidth:s.id==='s4'?2.5:1.8,pointRadius:0,tension:.3};})},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{labels:{color:'#3a5a7a',font:{family:'Space Mono',size:10},boxWidth:18,padding:12}},
-        tooltip:{backgroundColor:'#060d1a',borderColor:'#0d2040',borderWidth:1,titleColor:'#3a5a7a',bodyColor:'#b8cee0',
-          callbacks:{title:function(i){return'Trade #'+i[0].label;},label:function(i){return' '+i.dataset.label+': $'+i.raw.toFixed(2);}}}},
-      sections:{x:{ticks:{color:'#3a5a7a',maxTicksLimit:12},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}},
-        y:{ticks:{color:'#3a5a7a',callback:function(v){return'$'+v;}},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}}},
-      scales:{x:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},maxTicksLimit:12},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}},
-        y:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},callback:function(v){return'$'+v;}},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}}}}}));
-}
-
-// ── CARDS + VERDICT ──
-function drawCards(gridId,acts,res){
-  var bestId=acts.reduce(function(b,s){return res[s.id].final>res[b.id].final?s:b;},acts[0]).id;
-  var safeId=acts.reduce(function(b,s){return res[s.id].maxDD<res[b.id].maxDD?s:b;},acts[0]).id;
-  document.getElementById(gridId).innerHTML=acts.map(function(s){
-    var r=res[s.id],co=SC_COL[s.id];
-    var dc=r.maxDD>35?'var(--red)':r.maxDD>18?'var(--yellow)':'var(--green)';
-    var recR=r.rec+r.ll>0?Math.round(r.rec/(r.rec+r.ll)*100):0;
-    return'<div class="rc" style="background:'+co.bg+';border-color:'+co.c+'30;--rc-c:'+co.c+'">'+
-      '<div class="rc-name" style="color:'+co.c+'">'+s.label+
-        (s.id===bestId?'<span class="badge" style="background:var(--green2);color:var(--green)">BEST</span>':'')+
-        (s.id===safeId&&s.id!==bestId?'<span class="badge" style="background:var(--blue2);color:var(--blue)">SAFE</span>':'')+
-      '</div>'+
-      '<div class="rc-sub">'+(s.type==='static'?'Static $'+s.bet:'Dynamic '+s.pct+'%')+'</div>'+
-      '<div class="g2" style="gap:8px">'+
-        [['Final','$'+r.final.toFixed(0),r.profit>=0?'var(--green)':'var(--red)'],
-         ['Return',(r.returnPct>=0?'+':'')+r.returnPct+'%',r.returnPct>=0?'var(--green)':'var(--red)'],
-         ['Max DD%','-'+r.maxDD+'%',dc],['Max DD $','-$'+r.maxDDD.toFixed(0),dc],
-         ['Recovery',recR+'%','var(--green)'],['LL Events',r.ll+'','var(--red)']
-        ].map(function(x){return'<div class="sm"><div class="sl">'+x[0]+'</div><div class="sv" style="color:'+x[2]+'">'+x[1]+'</div></div>';}).join('')+
-      '</div></div>';
-  }).join('');
-}
-function drawVerdict(boxId,acts,res,trades){
-  var best=acts.slice().sort(function(a,b){return(res[b.id].returnPct-res[b.id].maxDD*1.2)-(res[a.id].returnPct-res[a.id].maxDD*1.2);})[0];
-  var rb=res[best.id];
-  var wr=Math.round(trades.filter(function(t){return t==='W';}).length/trades.length*1000)/10;
-  var recR=rb.rec+rb.ll>0?Math.round(rb.rec/(rb.rec+rb.ll)*100):0;
-  document.getElementById(boxId).innerHTML=
-    '<div class="verdict-title">★ Best Risk-Adjusted: '+best.label+' ('+(best.type==='static'?'$'+best.bet:best.pct+'%')+')</div>'+
-    '<p>With a <strong>'+wr+'% win rate</strong> across <strong>'+trades.length+' trades</strong>, this setup ends at <strong>$'+rb.final.toFixed(2)+'</strong> — a <strong>+'+rb.returnPct+'%</strong> return — keeping max drawdown at <strong>-'+rb.maxDD+'%</strong> ($'+rb.maxDDD.toFixed(0)+').</p>'+
-    '<p>Martingale recovery rate: <strong>'+recR+'%</strong> ('+rb.rec+' recovered / '+rb.ll+' failed). This is the core engine of your edge.</p>'+
-    '<p>Max realistic cluster loss: <strong>-'+rb.maxDD+'%</strong>. Always size 1R so this never feels like an emergency.</p>';
-}
-
-// ── HELPERS ──
-function seqHtml(trades){
-  var h='';
-  for(var i=0;i<trades.length;i++){
-    var t=trades[i],n=trades[i+1];
-    h+='<span class="'+(t==='W'?'tw':n==='L'?'tll':'tl')+'">'+t+'</span> ';
-  }
-  return h;
-}
-function srow(rows){
-  return rows.map(function(r){return'<div class="ii"><div class="il">'+r[0]+'</div><div class="iv"'+(r[2]?' style="color:'+r[2]+'"':'')+'>'+r[1]+'</div></div>';}).join('');
-}
-
-// ── SCENARIOS ──
-function renderScenarios(){
-  document.getElementById('scGrid').innerHTML=scenarios.map(function(s){
-    var co=SC_COL[s.id];
-    return'<div class="sc-card'+(s.on?' on':'')+'" style="--sc-c:'+co.c+';--sc-bg:'+co.bg+';--sc-glow:'+co.glow+'">'+
-      '<div class="sc-name">'+s.label+'</div><div class="sc-sub">'+s.sub+'</div>'+
-      '<div class="sc-row"><label>Name</label><input type="text" value="'+s.label+'" style="width:100px;font-size:11px" oninput="updSc(\''+s.id+'\',\'label\',this.value)"></div>'+
-      '<div class="sc-row"><label>Type</label><select onchange="updScType(\''+s.id+'\',this.value)" style="font-size:11px;padding:4px 6px;width:90px"><option value="static"'+(s.type==='static'?' selected':'')+'>Static $</option><option value="dynamic"'+(s.type==='dynamic'?' selected':'')+'>Dynamic %</option></select></div>'+
-      (s.type==='static'?'<div class="sc-row"><label>Bet $</label><input type="number" min=".1" step=".5" value="'+s.bet+'" oninput="updSc(\''+s.id+'\',\'bet\',+this.value)" style="width:80px"></div>':'<div class="sc-row"><label>Pct %</label><input type="number" min=".1" max="50" step=".1" value="'+s.pct+'" oninput="updSc(\''+s.id+'\',\'pct\',+this.value)" style="width:80px"></div>')+
-      '<div class="sc-bottom"><div class="sc-toggle'+(s.on?' on':'')+'" onclick="togSc(\''+s.id+'\')"></div><span>'+(s.on?'ON':'OFF')+'</span></div></div>';
-  }).join('');
-}
-function updSc(id,f,v){var s=scenarios.find(function(x){return x.id===id;});if(s)s[f]=v;if(f==='label')renderScenarios();}
-function updScType(id,t){var s=scenarios.find(function(x){return x.id===id;});if(s){s.type=t;if(t==='static'&&!s.bet)s.bet=10;if(t==='dynamic'&&!s.pct)s.pct=2;}renderScenarios();}
-function togSc(id){var s=scenarios.find(function(x){return x.id===id;});if(s)s.on=!s.on;renderScenarios();}
-function resetScenarios(){if(confirm('Reset?')){scenarios=defScenarios();renderScenarios();}}
-
-// ── TABS ──
-function switchTab(name){
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===name);});
-  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.add('hidden');});
-  var p=document.getElementById('tab-'+name);p.classList.remove('hidden');p.classList.add('fade');
-  if(name==='months')renderMonthGrid();
-  if(name==='simulate')refreshPills();
-  if(name==='combined')refreshPills();
-  if(name==='leaderboard')loadLeaderboard();
-  if(name==='settings')renderScenarios();
-}
-</script>
-
-<!-- CDN scripts loaded LAST so they never block page render -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="bootApp()" onerror="document.getElementById('loadMsg').textContent='Error: could not load Supabase. Check your internet connection.'"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script>
-function bootApp(){
-  try{
-    db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-  } catch(e){
-    document.getElementById('loadMsg').textContent = 'Error connecting to Supabase. Check your URL and key.';
-    return;
-  }
-  db.auth.onAuthStateChange(function(event, session){
-    if(session && session.user){
-      currentUser = session.user;
-      screen('load');
-      loadAll(function(){
-        document.getElementById('userEmail').textContent = session.user.email;
-        screen('app');
-        renderMonthGrid();
-        renderScenarios();
-        refreshPills();
-        document.getElementById('tab-months').classList.remove('hidden');
-      });
-    } else {
-      screen('auth');
+// ═══════════════════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════════════════
+function renderChart(canvasId, active, results, totalTrades, startCapital, prevInst, setter) {
+  const labels = Array.from({length:totalTrades+1},(_,i)=>i);
+  const datasets = active.map(s => ({
+    label: s.label,
+    data: results[s.id].history,
+    borderColor: SC_COLORS[s.id].c,
+    backgroundColor: 'transparent',
+    borderWidth: s.id==='s4'?2.5:1.8,
+    pointRadius:0, tension:.3,
+  }));
+  if(prevInst) prevInst.destroy();
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const inst = new Chart(ctx,{
+    type:'line', data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:'#3a5a7a',font:{family:'Space Mono',size:10},boxWidth:18,padding:14}},
+        tooltip:{
+          backgroundColor:'#060d1a',borderColor:'#0d2040',borderWidth:1,
+          titleColor:'#3a5a7a',bodyColor:'#b8cee0',
+          titleFont:{family:'Space Mono',size:10},
+          bodyFont:{family:'Space Mono',size:12},
+          callbacks:{
+            title:items=>`Trade #${items[0].label}`,
+            label:item=>` ${item.dataset.label}: $${item.raw.toFixed(2)}`
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},maxTicksLimit:12},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}},
+        y:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},callback:v=>`$${v}`},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}}
+      }
     }
   });
+  setter(inst);
 }
-</script>
 
+// ═══════════════════════════════════════════════════════════
+// RESULT CARDS
+// ═══════════════════════════════════════════════════════════
+function renderResultCards(gridId, active, results, startCapital) {
+  const bestId = active.reduce((b,s)=>results[s.id].final>results[b.id].final?s:b,active[0]).id;
+  const safestId = active.reduce((b,s)=>results[s.id].maxDD<results[b.id].maxDD?s:b,active[0]).id;
+
+  document.getElementById(gridId).innerHTML = active.map(s=>{
+    const r=results[s.id], co=SC_COLORS[s.id];
+    const isBest=s.id===bestId, isSafe=s.id===safestId;
+    const ddC=r.maxDD>35?'var(--red)':r.maxDD>18?'var(--yellow)':'var(--green)';
+    return `<div class="rc" style="background:${co.bg};border-color:${co.c}30;--rc-c:${co.c}">
+      <div class="rc-name" style="color:${co.c}">${s.label}
+        ${isBest?`<span class="badge" style="background:var(--green2);color:var(--green);border:1px solid rgba(0,229,170,.2)">BEST ROI</span>`:''}
+        ${isSafe&&!isBest?`<span class="badge" style="background:var(--blue2);color:var(--blue);border:1px solid rgba(56,170,255,.2)">SAFEST</span>`:''}
+      </div>
+      <div class="rc-sub">${s.type==='static'?`Static $${s.bet}`:`Dynamic ${s.pct}%`}</div>
+      <div class="g2" style="gap:8px">
+        ${[
+          ['Final',`$${r.final.toFixed(0)}`,r.profit>=0?'var(--green)':'var(--red)'],
+          ['Return',`${r.returnPct>=0?'+':''}${r.returnPct}%`,r.returnPct>=0?'var(--green)':'var(--red)'],
+          ['Max DD%',`-${r.maxDD}%`,ddC],
+          ['Max DD $',`-$${r.maxDDDollar.toFixed(0)}`,ddC],
+          ['Recoveries',r.recoveries,'var(--green)'],
+          ['LL Events',r.llEvents,'var(--red)'],
+        ].map(([l,v,c])=>`<div class="sm"><div class="sl">${l}</div><div class="sv" style="color:${c}">${v}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// VERDICT
+// ═══════════════════════════════════════════════════════════
+function renderVerdict(boxId, active, results, startCapital, trades) {
+  const sorted = [...active].sort((a,b)=>{
+    const ra=results[a.id],rb=results[b.id];
+    return (rb.returnPct-rb.maxDD*1.2)-(ra.returnPct-ra.maxDD*1.2);
+  });
+  const best=sorted[0], rb=results[best.id];
+  const wr=Math.round(trades.filter(t=>t==='W').length/trades.length*1000)/10;
+  const recRate=rb.recoveries+rb.llEvents>0?Math.round(rb.recoveries/(rb.recoveries+rb.llEvents)*100):0;
+
+  document.getElementById(boxId).innerHTML = `
+    <div class="verdict-title">Best Risk-Adjusted: ${best.label} (${best.type==='static'?'$'+best.bet:best.pct+'%'})</div>
+    <p>With a <strong>${wr}% win rate</strong> across <strong>${trades.length} trades</strong>, this scenario ends at <strong>$${rb.final.toFixed(2)}</strong> — a <strong>+${rb.returnPct}%</strong> return — while keeping max drawdown at <strong>-${rb.maxDD}%</strong> ($${rb.maxDDDollar.toFixed(0)}).</p>
+    <p>Martingale recovery rate: <strong>${recRate}%</strong> (${rb.recoveries} recovered / ${rb.llEvents} failed LL events). This is the core engine of your edge.</p>
+    <p>Worst realistic cluster will cost <strong>-${rb.maxDD}%</strong> before recovery kicks in. Always size your 1R so this drawdown never feels like an emergency — because it <em>will</em> happen again.</p>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SEQUENCE HTML BUILDER
+// ═══════════════════════════════════════════════════════════
+function buildSeqHtml(trades) {
+  let html='';
+  for(let i=0;i<trades.length;i++){
+    const t=trades[i], next=trades[i+1];
+    if(t==='L'&&next==='L') html+=`<span class="tll">L</span> `;
+    else html+=`<span class="${t==='W'?'tw':'tl'}">${t}</span> `;
+  }
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCENARIO EDITOR
+// ═══════════════════════════════════════════════════════════
+function renderScenarios() {
+  document.getElementById('scGrid').innerHTML = scenarios.map(s=>{
+    const co=SC_COLORS[s.id];
+    return `<div class="sc-card ${s.on?'on':''}" style="--sc-c:${co.c};--sc-bg:${co.bg};--sc-glow:${co.glow}">
+      <div class="sc-name">${s.label}</div>
+      <div class="sc-sub">${s.sub}</div>
+      <div class="sc-row"><label>Name</label>
+        <input type="text" value="${s.label}" style="width:100px;font-size:11px" oninput="updSc('${s.id}','label',this.value)">
+      </div>
+      <div class="sc-row"><label>Type</label>
+        <select onchange="updScType('${s.id}',this.value)" style="font-size:11px;padding:4px 6px;width:90px">
+          <option value="static" ${s.type==='static'?'selected':''}>Static $</option>
+          <option value="dynamic" ${s.type==='dynamic'?'selected':''}>Dynamic %</option>
+        </select>
+      </div>
+      ${s.type==='static'
+        ?`<div class="sc-row"><label>Bet ($)</label><input type="number" min=".1" step=".5" value="${s.bet}" oninput="updSc('${s.id}','bet',+this.value)" style="width:80px"></div>`
+        :`<div class="sc-row"><label>Pct (%)</label><input type="number" min=".1" max="50" step=".1" value="${s.pct}" oninput="updSc('${s.id}','pct',+this.value)" style="width:80px"></div>`
+      }
+      <div class="sc-bottom">
+        <div class="sc-toggle ${s.on?'on':''}" onclick="toggleSc('${s.id}')"></div>
+        <span>${s.on?'ON':'OFF'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function updSc(id,field,val){const s=scenarios.find(x=>x.id===id);if(s){s[field]=val;}if(field==='label'){renderScenarios();}saveScenarios();}
+function updScType(id,type){const s=scenarios.find(x=>x.id===id);if(s){s.type=type;if(type==='static'&&!s.bet)s.bet=10;if(type==='dynamic'&&!s.pct)s.pct=2;}renderScenarios();saveScenarios();}
+function toggleSc(id){const s=scenarios.find(x=>x.id===id);if(s)s.on=!s.on;renderScenarios();saveScenarios();}
+function resetScenarios(){if(confirm('Reset scenarios to defaults?')){scenarios=defaultScenarios();saveScenarios();renderScenarios();}}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+renderMonthGrid();
+renderScenarios();
+</script>
 </body>
 </html>
