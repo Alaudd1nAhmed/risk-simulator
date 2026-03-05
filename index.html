@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Market Cipher Risk Simulator — Alauddin Ahmed</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
+:root{
   --bg:#03070f;--bg2:#060d1a;--bg3:#0a1525;--bg4:#0c1a30;
   --border:#0d2040;--border2:#1a3560;
   --text:#b8cee0;--text2:#7a9ab8;--muted:#3a5a7a;--muted2:#254060;
@@ -24,31 +23,36 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-.wrap{max-width:1140px;margin:0 auto;padding:28px 20px 60px}
-.hidden{display:none!important}
-.fade{animation:fadeIn .4s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-/* ── DEMO BANNER ── */
-.demo-banner{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.25);border-radius:10px;
-  padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--yellow)}
-.demo-banner strong{font-weight:700}
+/* ── SCREENS ── */
+#loadingScreen,#authScreen,#appScreen{display:none}
+
+/* ── LOADING ── */
+.loading-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.loader{width:36px;height:36px;border:3px solid rgba(0,229,170,.15);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:12px;color:var(--muted);letter-spacing:.1em}
 
 /* ── AUTH ── */
 .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px 32px;
-  width:100%;max-width:420px;text-align:center}
+.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px 32px;width:100%;max-width:420px;text-align:center}
 .auth-logo{font-family:var(--sans);font-size:22px;font-weight:800;color:#e8f4ff;margin-bottom:4px}
 .auth-logo span{color:var(--green)}
 .auth-sub{font-size:11px;color:var(--muted);margin-bottom:28px;letter-spacing:.05em}
 .auth-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--bg3);padding:4px;border-radius:8px}
-.auth-tab{flex:1;padding:8px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--mono);
-  border:none;background:transparent;color:var(--muted);transition:all .15s}
+.auth-tab{flex:1;padding:8px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--mono);border:none;background:transparent;color:var(--muted);transition:all .15s}
 .auth-tab.active{background:var(--bg4);color:var(--text);border:1px solid var(--border2)}
-.auth-msg{font-size:11px;padding:8px 12px;border-radius:6px;margin-bottom:14px;text-align:left}
-.auth-msg.err{background:var(--red2);color:var(--red);border:1px solid rgba(255,64,96,.2)}
-.auth-msg.ok{background:var(--green2);color:var(--green);border:1px solid rgba(0,229,170,.2)}
+.auth-field{text-align:left;margin-bottom:14px}
+.auth-msg{font-size:11px;padding:8px 12px;border-radius:6px;margin-bottom:14px;text-align:left;display:none}
+.auth-msg.err{background:var(--red2);color:var(--red);border:1px solid rgba(255,64,96,.2);display:block}
+.auth-msg.ok{background:var(--green2);color:var(--green);border:1px solid rgba(0,229,170,.2);display:block}
 .auth-creator{margin-top:20px;font-size:10px;color:var(--muted2);padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── APP LAYOUT ── */
+.wrap{max-width:1140px;margin:0 auto;padding:28px 20px 60px}
+.fade{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hidden{display:none!important}
 
 /* ── HEADER ── */
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;gap:16px;flex-wrap:wrap}
@@ -63,11 +67,9 @@ h1 span{color:var(--green)}
 .cr-name{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--green);margin-bottom:2px}
 .cr-wa{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px;justify-content:flex-end}
 .cr-wa::before{content:'';width:7px;height:7px;background:#25d366;border-radius:50%;display:inline-block}
-.user-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;
-  display:flex;align-items:center;gap:10px;font-size:11px}
+.user-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:10px;font-size:11px}
 .up-email{color:var(--text2)}
-.up-logout{color:var(--red);cursor:pointer;font-size:11px;border:none;background:transparent;
-  font-family:var(--mono);padding:0;opacity:.7;transition:opacity .15s}
+.up-logout{color:var(--red);cursor:pointer;font-size:11px;border:none;background:transparent;font-family:var(--mono);padding:0;opacity:.7;transition:opacity .15s}
 .up-logout:hover{opacity:1}
 
 /* ── PANELS & FORMS ── */
@@ -76,12 +78,10 @@ h1 span{color:var(--green)}
 .pt{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .pt::after{content:'';flex:1;height:1px;background:var(--border)}
 .mb16{margin-bottom:16px}.mt16{margin-top:16px}
-.divider{height:1px;background:var(--border);margin:18px 0}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
-@media(max-width:440px){.g2,.g3,.g4{grid-template-columns:1fr}}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.g2,.g3{grid-template-columns:1fr}}
 label{font-size:10px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px}
 input[type=number],input[type=text],input[type=email],input[type=password],select,textarea{
   width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
@@ -97,9 +97,7 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 .sfx input{padding-right:28px}
 
 /* ── BUTTONS ── */
-.btn{background:var(--green);color:#000;font-family:var(--sans);font-weight:700;font-size:13px;
-  letter-spacing:.04em;border:none;border-radius:8px;padding:10px 22px;cursor:pointer;
-  transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn{background:var(--green);color:#000;font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.04em;border:none;border-radius:8px;padding:10px 22px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{background:#00ffbb;transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,229,170,.25)}
 .btn:active{transform:translateY(0)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
@@ -110,28 +108,23 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
 
 /* ── TABS ── */
-.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-bottom:none;
-  border-radius:10px 10px 0 0;padding:8px 8px 0;flex-wrap:wrap}
-.tab{font-family:var(--mono);font-size:11px;padding:8px 14px;border-radius:6px 6px 0 0;cursor:pointer;
-  border:1px solid transparent;color:var(--muted);background:transparent;transition:all .15s}
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 8px 0;flex-wrap:wrap}
+.tab{font-family:var(--mono);font-size:11px;padding:8px 14px;border-radius:6px 6px 0 0;cursor:pointer;border:1px solid transparent;color:var(--muted);background:transparent;transition:all .15s}
 .tab.active{background:var(--bg3);border-color:var(--border2);border-bottom-color:var(--bg3);color:var(--text);margin-bottom:-1px;z-index:2}
-.tab:hover:not(.active){color:var(--text2);background:rgba(255,255,255,.02)}
+.tab:hover:not(.active){color:var(--text2)}
 .tab-panel{background:var(--bg2);border:1px solid var(--border);border-radius:0 10px 10px 10px;padding:20px;margin-bottom:16px}
 
 /* ── MONTH CARDS ── */
 .month-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:16px}
-.month-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;
-  cursor:pointer;transition:all .15s;position:relative}
+.month-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .15s;position:relative}
 .month-card:hover{border-color:var(--border2);transform:translateY(-2px)}
 .month-card.selected{border-color:var(--green);background:rgba(0,229,170,.04)}
 .mc-name{font-family:var(--sans);font-size:14px;font-weight:700;color:#e8f4ff;margin-bottom:4px}
 .mc-stats{font-size:10px;color:var(--muted);line-height:1.9}
 .mc-wr{font-size:12px;font-weight:700;margin-top:6px}
-.mc-del{position:absolute;top:10px;right:10px;color:var(--red);opacity:.35;cursor:pointer;
-  font-size:16px;line-height:1;transition:opacity .15s;background:transparent;border:none}
+.mc-del{position:absolute;top:10px;right:10px;color:var(--red);opacity:.35;cursor:pointer;font-size:16px;line-height:1;transition:opacity .15s;background:transparent;border:none}
 .mc-del:hover{opacity:1}
-.add-card{border-style:dashed;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:6px;min-height:120px;color:var(--muted);font-size:12px}
+.add-card{border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:120px;color:var(--muted);font-size:12px}
 .add-card:hover{border-color:var(--green);color:var(--green)}
 .add-card .plus{font-size:28px;font-weight:300}
 
@@ -145,8 +138,7 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 .sc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}
 .sc-row label{margin:0;font-size:9px;white-space:nowrap}
 .sc-row input,.sc-row select{width:90px;font-size:11px;padding:5px 8px;border-radius:5px}
-.sc-toggle{width:28px;height:16px;border-radius:8px;background:var(--border2);cursor:pointer;
-  transition:background .2s;display:inline-flex;align-items:center;padding:2px;flex-shrink:0}
+.sc-toggle{width:28px;height:16px;border-radius:8px;background:var(--border2);cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;padding:2px;flex-shrink:0}
 .sc-toggle.on{background:var(--sc-c)}
 .sc-toggle::after{content:'';width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .2s}
 .sc-toggle.on::after{transform:translateX(12px)}
@@ -181,45 +173,33 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 
 /* ── VERDICT ── */
 .verdict{background:rgba(0,229,170,.04);border:1px solid rgba(0,229,170,.18);border-radius:12px;padding:18px 20px;margin-top:16px}
-.verdict-title{color:var(--green);font-family:var(--sans);font-weight:700;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.verdict-title{color:var(--green);font-family:var(--sans);font-weight:700;font-size:15px;margin-bottom:10px}
 .verdict p{color:var(--text2);line-height:1.8;font-size:12px;margin-bottom:8px}
 .verdict p:last-child{margin:0}
 .verdict strong{color:var(--green)}
 
 /* ── PILL ROW ── */
 .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.pill{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;
-  font-size:11px;cursor:pointer;transition:all .15s;user-select:none}
+.pill{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;transition:all .15s;user-select:none}
 .pill.on{background:rgba(0,229,170,.1);border-color:var(--green);color:var(--green)}
 .pill:hover{border-color:var(--green)}
 
 /* ── LEADERBOARD ── */
-.lb-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:12px;align-items:center;
-  padding:10px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;background:var(--bg3)}
+.lb-row{display:grid;grid-template-columns:32px 1fr auto auto auto;gap:12px;align-items:center;padding:10px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;background:var(--bg3)}
 .lb-row:first-child{border-color:var(--green);background:rgba(0,229,170,.04)}
-.lb-rank{font-family:var(--sans);font-weight:800;font-size:16px;color:var(--muted);width:24px;text-align:center}
+.lb-rank{font-family:var(--sans);font-weight:800;font-size:16px;color:var(--muted);text-align:center}
 .lb-row:first-child .lb-rank{color:var(--green)}
 
 /* ── MODAL ── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
-  z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px;
-  width:100%;max-width:500px;position:relative;animation:fadeIn .2s ease;max-height:90vh;overflow-y:auto}
-.modal-close{position:absolute;top:14px;right:18px;color:var(--muted);cursor:pointer;
-  font-size:22px;line-height:1;background:transparent;border:none}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:500px;position:relative;animation:fadeIn .2s ease;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:14px;right:18px;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;background:transparent;border:none}
 .modal-close:hover{color:var(--text)}
 .modal h3{font-family:var(--sans);font-size:18px;font-weight:700;color:#e8f4ff;margin-bottom:18px}
 
-/* ── LOADER ── */
-.loader{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,229,170,.2);
-  border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:60vh;gap:16px;color:var(--muted);font-size:13px}
-
 /* ── FOOTER ── */
-.footer{margin-top:48px;border-top:1px solid var(--border);padding-top:20px;
-  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer{margin-top:48px;border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .footer-left{font-size:11px;color:var(--muted);line-height:1.7}
 .footer-right{text-align:right;font-size:11px;color:var(--muted)}
 .fn{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--green)}
@@ -229,187 +209,186 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 </head>
 <body>
 
-<!-- AUTH SCREEN (cloud mode only) -->
-<div class="auth-wrap hidden" id="authScreen">
-  <div class="auth-box fade">
-    <div class="auth-logo">Risk <span>Simulator</span></div>
-    <div class="auth-sub">Market Cipher · BTC M15 · Toggle Martingale</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="setAuthTab('login')">Login</button>
-      <button class="auth-tab" onclick="setAuthTab('signup')">Sign Up</button>
-    </div>
-    <div id="authMsg" class="auth-msg hidden"></div>
-    <div style="display:flex;flex-direction:column;gap:12px;text-align:left">
-      <div id="nameField" class="hidden">
+<!-- ══ LOADING ══ -->
+<div id="loadingScreen">
+  <div class="loading-wrap">
+    <div class="loader"></div>
+    <div class="loading-text">Connecting...</div>
+  </div>
+</div>
+
+<!-- ══ AUTH ══ -->
+<div id="authScreen">
+  <div class="auth-wrap">
+    <div class="auth-box fade">
+      <div class="auth-logo">Risk <span>Simulator</span></div>
+      <div class="auth-sub">Market Cipher · BTC M15 · Toggle Martingale</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="setAuthTab('login')">Login</button>
+        <button class="auth-tab" onclick="setAuthTab('signup')">Sign Up</button>
+      </div>
+      <div id="authMsg" class="auth-msg"></div>
+      <div id="nameField" style="display:none" class="auth-field">
         <label>Your Name</label>
         <input type="text" id="authName" placeholder="e.g. Alauddin Ahmed">
       </div>
-      <div>
+      <div class="auth-field">
         <label>Email</label>
         <input type="email" id="authEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doAuth()">
       </div>
-      <div>
+      <div class="auth-field">
         <label>Password</label>
         <input type="password" id="authPass" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doAuth()">
       </div>
-    </div>
-    <button class="btn btn-full mt16" id="authBtn" onclick="doAuth()">Login</button>
-    <div class="auth-creator">Created by <strong style="color:var(--green)">Alauddin Ahmed</strong> · +880 1724-501119</div>
-  </div>
-</div>
-
-<!-- LOADING -->
-<div id="loadingScreen">
-  <div class="loading-screen"><div class="loader"></div><span>Loading your data...</span></div>
-</div>
-
-<!-- MAIN APP -->
-<div class="wrap hidden" id="appScreen">
-
-  <!-- DEMO BANNER (shown when not using Supabase) -->
-  <div class="demo-banner hidden" id="demoBanner">
-    ⚡ <div><strong>Demo Mode</strong> — Data saved locally in this browser. <span id="demoDeployNote">Deploy to Vercel with Supabase to enable cloud sync & multi-device access.</span></div>
-  </div>
-
-  <div class="header fade">
-    <div>
-      <div class="tag">Market Cipher · BTC M15 · Polymarket · Toggle Martingale</div>
-      <h1>Risk <span>Simulator</span></h1>
-    </div>
-    <div class="header-right">
-      <div class="creator-card">
-        <div class="cr-label">Created by</div>
-        <div class="cr-name">Alauddin Ahmed</div>
-        <div class="cr-wa">+880 1724-501119</div>
-      </div>
-      <div class="user-pill" id="userPill">
-        <span class="up-email" id="userEmail">Demo Mode</span>
-        <button class="up-logout hidden" id="logoutBtn" onclick="logout()">Logout</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('months')" data-tab="months">📅 Monthly Data</div>
-    <div class="tab" onclick="switchTab('simulate')" data-tab="simulate">▶ Simulate</div>
-    <div class="tab" onclick="switchTab('combined')" data-tab="combined">📊 Combined View</div>
-    <div class="tab" onclick="switchTab('leaderboard')" data-tab="leaderboard">🏆 Leaderboard</div>
-    <div class="tab" onclick="switchTab('settings')" data-tab="settings">⚙ Scenarios</div>
-  </div>
-
-  <!-- MONTHLY DATA -->
-  <div class="tab-panel" id="tab-months">
-    <div class="pt">Your Saved Months <span id="syncStatus" style="font-family:var(--mono);letter-spacing:0;text-transform:none;font-size:10px;color:var(--muted);margin-left:8px"></span></div>
-    <div class="month-grid" id="monthGrid"></div>
-    <div class="btn-row">
-      <button class="btn btn-sm" onclick="openAddMonth()">+ Add New Month</button>
-      <button class="btn btn-outline btn-sm" onclick="loadFebDemo()">Load Feb 2026 (Demo)</button>
-    </div>
-  </div>
-
-  <!-- SIMULATE -->
-  <div class="tab-panel hidden" id="tab-simulate">
-    <div class="pt">Select Month</div>
-    <div class="pill-row" id="simPills"><span style="color:var(--muted);font-size:12px">Add months first →</span></div>
-    <div class="g3 mb16">
-      <div><label>Starting Capital ($)</label>
-        <div class="pfx"><span>$</span><input type="number" id="cfg_cap" value="200" min="1" step="10"></div></div>
-      <div><label>Martingale Multiplier</label>
-        <div class="sfx"><span>×</span><input type="number" id="cfg_mult" value="2" min="1.1" max="5" step="0.1"></div></div>
-      <div><label>After LL Event</label>
-        <select id="cfg_reset">
-          <option value="yes">Reset to base bet</option>
-          <option value="no">Keep martingaling</option>
-        </select></div>
-    </div>
-    <div class="btn-row mb16">
-      <button class="btn" onclick="runSim()">▶ Run Simulation</button>
-      <button class="btn btn-outline" onclick="switchTab('settings')">Edit Scenarios</button>
-    </div>
-    <div id="simResults" class="hidden fade">
-      <div class="panel mb16">
-        <div class="pt">Stats</div>
-        <div class="info-row" id="simStats"></div>
-        <div class="pt" style="margin-top:12px">Sequence Preview</div>
-        <div class="seq-prev" id="simSeqPrev"></div>
-      </div>
-      <div class="chart-box">
-        <div class="pt">Bankroll Curve</div>
-        <div class="chart-h"><canvas id="simChart"></canvas></div>
-      </div>
-      <div class="rc-grid mt16" id="simRcGrid"></div>
-      <div class="verdict" id="simVerdict"></div>
-      <div class="btn-row mt16" id="publishRow">
-        <button class="btn btn-outline btn-sm" onclick="publishResult()">🏆 Publish to Leaderboard</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- COMBINED VIEW -->
-  <div class="tab-panel hidden" id="tab-combined">
-    <div class="pt">Select Months to Combine</div>
-    <div class="pill-row" id="cmbPills"><span style="color:var(--muted);font-size:12px">Add months first →</span></div>
-    <div class="g3 mb16">
-      <div><label>Starting Capital ($)</label>
-        <div class="pfx"><span>$</span><input type="number" id="cmb_cap" value="200" min="1" step="10"></div></div>
-      <div><label>Martingale Multiplier</label>
-        <div class="sfx"><span>×</span><input type="number" id="cmb_mult" value="2" min="1.1" max="5" step="0.1"></div></div>
-      <div><label>After LL Event</label>
-        <select id="cmb_reset">
-          <option value="yes">Reset to base bet</option>
-          <option value="no">Keep martingaling</option>
-        </select></div>
-    </div>
-    <div class="btn-row mb16">
-      <button class="btn" onclick="runCombined()">▶ Run Combined Simulation</button>
-    </div>
-    <div id="cmbResults" class="hidden fade">
-      <div class="panel mb16">
-        <div class="pt">Aggregate Stats</div>
-        <div class="info-row" id="cmbStats"></div>
-      </div>
-      <div class="chart-box">
-        <div class="pt">Combined Bankroll Curve</div>
-        <div class="chart-h"><canvas id="cmbChart"></canvas></div>
-      </div>
-      <div class="rc-grid mt16" id="cmbRcGrid"></div>
-      <div class="verdict" id="cmbVerdict"></div>
-      <div class="panel mt16">
-        <div class="pt">Per-Month Breakdown</div>
-        <div id="perMonthTable" style="overflow-x:auto"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LEADERBOARD -->
-  <div class="tab-panel hidden" id="tab-leaderboard">
-    <div class="pt">Community Leaderboard — Best Monthly Returns</div>
-    <div style="color:var(--muted);font-size:11px;margin-bottom:16px">Publish your simulation results to compare with other traders.</div>
-    <div id="leaderboardList"></div>
-  </div>
-
-  <!-- SCENARIOS -->
-  <div class="tab-panel hidden" id="tab-settings">
-    <div class="pt">Comparison Scenarios</div>
-    <div class="sc-grid" id="scGrid"></div>
-    <div class="btn-row">
-      <button class="btn btn-outline btn-sm" onclick="resetScenarios()">Reset to Defaults</button>
-      <button class="btn btn-sm" onclick="saveScenarios()">💾 Save Scenarios</button>
-    </div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-left">Market Cipher · BTC M15 · Polymarket<br>1-Step Toggle Martingale Strategy</div>
-    <div class="footer-right">
-      <div class="fn">Alauddin Ahmed</div>
-      <div class="fw">+880 1724-501119</div>
-      <div style="margin-top:4px;font-size:10px;color:var(--muted2)">All rights reserved © 2026</div>
+      <button class="btn btn-full mt16" id="authBtn" onclick="doAuth()">Login</button>
+      <div class="auth-creator">Created by <strong style="color:var(--green)">Alauddin Ahmed</strong> · +880 1724-501119</div>
     </div>
   </div>
 </div>
 
-<!-- ADD/EDIT MONTH MODAL -->
-<div class="modal-bg hidden" id="addModal">
+<!-- ══ APP ══ -->
+<div id="appScreen">
+  <div class="wrap">
+    <div class="header fade">
+      <div>
+        <div class="tag">Market Cipher · BTC M15 · Polymarket · Toggle Martingale</div>
+        <h1>Risk <span>Simulator</span></h1>
+      </div>
+      <div class="header-right">
+        <div class="creator-card">
+          <div class="cr-label">Created by</div>
+          <div class="cr-name">Alauddin Ahmed</div>
+          <div class="cr-wa">+880 1724-501119</div>
+        </div>
+        <div class="user-pill">
+          <span class="up-email" id="userEmail"></span>
+          <button class="up-logout" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('months')" data-tab="months">📅 Monthly Data</div>
+      <div class="tab" onclick="switchTab('simulate')" data-tab="simulate">▶ Simulate</div>
+      <div class="tab" onclick="switchTab('combined')" data-tab="combined">📊 Combined View</div>
+      <div class="tab" onclick="switchTab('leaderboard')" data-tab="leaderboard">🏆 Leaderboard</div>
+      <div class="tab" onclick="switchTab('settings')" data-tab="settings">⚙ Scenarios</div>
+    </div>
+
+    <!-- MONTHLY DATA -->
+    <div class="tab-panel" id="tab-months">
+      <div class="pt">Your Saved Months <span id="syncStatus" style="font-family:var(--mono);letter-spacing:0;text-transform:none;font-size:10px;color:var(--muted);margin-left:8px"></span></div>
+      <div class="month-grid" id="monthGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-sm" onclick="openAddMonth()">+ Add New Month</button>
+        <button class="btn btn-outline btn-sm" onclick="loadFebDemo()">Load Feb 2026 (Demo)</button>
+      </div>
+    </div>
+
+    <!-- SIMULATE -->
+    <div class="tab-panel hidden" id="tab-simulate">
+      <div class="pt">Select Month</div>
+      <div class="pill-row" id="simPills"><span style="color:var(--muted);font-size:12px">Add months first →</span></div>
+      <div class="g3 mb16">
+        <div><label>Starting Capital ($)</label>
+          <div class="pfx"><span>$</span><input type="number" id="cfg_cap" value="200" min="1" step="10"></div></div>
+        <div><label>Martingale Multiplier</label>
+          <div class="sfx"><span>×</span><input type="number" id="cfg_mult" value="2" min="1.1" max="5" step="0.1"></div></div>
+        <div><label>After LL Event</label>
+          <select id="cfg_reset">
+            <option value="yes">Reset to base bet</option>
+            <option value="no">Keep martingaling</option>
+          </select></div>
+      </div>
+      <div class="btn-row mb16">
+        <button class="btn" onclick="runSim()">▶ Run Simulation</button>
+        <button class="btn btn-outline" onclick="switchTab('settings')">Edit Scenarios</button>
+      </div>
+      <div id="simResults" class="hidden fade">
+        <div class="panel mb16">
+          <div class="pt">Stats</div>
+          <div class="info-row" id="simStats"></div>
+          <div class="pt" style="margin-top:12px">Sequence Preview</div>
+          <div class="seq-prev" id="simSeqPrev"></div>
+        </div>
+        <div class="chart-box">
+          <div class="pt">Bankroll Curve</div>
+          <div class="chart-h"><canvas id="simChart"></canvas></div>
+        </div>
+        <div class="rc-grid mt16" id="simRcGrid"></div>
+        <div class="verdict" id="simVerdict"></div>
+        <div class="btn-row mt16">
+          <button class="btn btn-outline btn-sm" onclick="publishResult()">🏆 Publish to Leaderboard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMBINED VIEW -->
+    <div class="tab-panel hidden" id="tab-combined">
+      <div class="pt">Select Months to Combine</div>
+      <div class="pill-row" id="cmbPills"><span style="color:var(--muted);font-size:12px">Add months first →</span></div>
+      <div class="g3 mb16">
+        <div><label>Starting Capital ($)</label>
+          <div class="pfx"><span>$</span><input type="number" id="cmb_cap" value="200" min="1" step="10"></div></div>
+        <div><label>Martingale Multiplier</label>
+          <div class="sfx"><span>×</span><input type="number" id="cmb_mult" value="2" min="1.1" max="5" step="0.1"></div></div>
+        <div><label>After LL Event</label>
+          <select id="cmb_reset">
+            <option value="yes">Reset to base bet</option>
+            <option value="no">Keep martingaling</option>
+          </select></div>
+      </div>
+      <div class="btn-row mb16">
+        <button class="btn" onclick="runCombined()">▶ Run Combined Simulation</button>
+      </div>
+      <div id="cmbResults" class="hidden fade">
+        <div class="panel mb16">
+          <div class="pt">Aggregate Stats</div>
+          <div class="info-row" id="cmbStats"></div>
+        </div>
+        <div class="chart-box">
+          <div class="pt">Combined Bankroll Curve</div>
+          <div class="chart-h"><canvas id="cmbChart"></canvas></div>
+        </div>
+        <div class="rc-grid mt16" id="cmbRcGrid"></div>
+        <div class="verdict" id="cmbVerdict"></div>
+        <div class="panel mt16">
+          <div class="pt">Per-Month Breakdown</div>
+          <div id="perMonthTable" style="overflow-x:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="tab-panel hidden" id="tab-leaderboard">
+      <div class="pt">Community Leaderboard — Best Monthly Returns</div>
+      <div style="color:var(--muted);font-size:11px;margin-bottom:16px">Publish your simulation results to compare with other traders.</div>
+      <div id="leaderboardList"></div>
+    </div>
+
+    <!-- SCENARIOS -->
+    <div class="tab-panel hidden" id="tab-settings">
+      <div class="pt">Comparison Scenarios</div>
+      <div class="sc-grid" id="scGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-outline btn-sm" onclick="resetScenarios()">Reset to Defaults</button>
+        <button class="btn btn-sm" onclick="saveScenarios()">💾 Save Scenarios</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-left">Market Cipher · BTC M15 · Polymarket<br>1-Step Toggle Martingale Strategy</div>
+      <div class="footer-right">
+        <div class="fn">Alauddin Ahmed</div>
+        <div class="fw">+880 1724-501119</div>
+        <div style="margin-top:4px;font-size:10px;color:var(--muted2)">All rights reserved © 2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="addModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
     <h3 id="modalTitle">Add New Month</h3>
@@ -433,21 +412,15 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// SUPABASE CONFIG
-// When deploying: replace these with your real values from supabase.com
-// Leave as-is for demo/preview mode (will auto-fallback to localStorage)
-// ═══════════════════════════════════════════════════════════
-const SUPABASE_URL = https://wdlbdvtnbrwudjeqxxug.supabase.co;
-const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkbGJkdnRuYnJ3dWRqZXF4eHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTIzMjEsImV4cCI6MjA4ODIyODMyMX0.ISK3h73UehKrPokCcqhJsWoxUI4fhbJT5FZHRCUYS-Y;
+// ══════════════════════════════════════════════════════
+// CONFIG — replace with your Supabase values
+// ══════════════════════════════════════════════════════
+const SUPABASE_URL  = https://wdlbdvtnbrwudjeqxxug.supabase.co;
+const SUPABASE_ANON = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkbGJkdnRuYnJ3dWRqZXF4eHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTIzMjEsImV4cCI6MjA4ODIyODMyMX0.ISK3h73UehKrPokCcqhJsWoxUI4fhbJT5FZHRCUYS-Y;
 
-// sb and cloudMode are set by the loader at the bottom
-let sb = null;
-let cloudMode = false;
-
-// ═══════════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════
 const FEB = 'W L L W L L L L L W W L W W W W W W W L L W W W W L L L W W W W W L W L W W L W L W W W W L W L W W L W L L W L W L W W W W W W W W W W W L L L W W W W L W L W L L L W W W L W W L W L W L W W W L W W';
 const SC_COL = {
   s1:{c:'#ff4060',bg:'rgba(255,64,96,.07)',glow:'rgba(255,64,96,.12)'},
@@ -456,142 +429,124 @@ const SC_COL = {
   s4:{c:'#00e5aa',bg:'rgba(0,229,170,.07)',glow:'rgba(0,229,170,.15)'},
 };
 
-let currentUser = null;
-let months = [];
-let scenarios = defaultScenarios();
-let selectedSimMonth = null;
-let selectedCmbMonths = [];
-let editingMonthId = null;
-let simChartInst = null;
-let cmbChartInst = null;
-let lastSimResults = null;
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let db, currentUser, months=[], scenarios=defaultScenarios();
+let selSimMonth=null, selCmbMonths=[], editingId=null;
+let simChart=null, cmbChart=null, lastResults=null;
 
-function defaultScenarios() {
-  return [
+function defaultScenarios(){
+  return[
     {id:'s1',label:'Static $10',sub:'Fixed dollar',type:'static',bet:10,pct:null,on:true},
-    {id:'s2',label:'Static $4',sub:'Fixed dollar',type:'static',bet:4,pct:null,on:true},
+    {id:'s2',label:'Static $4', sub:'Fixed dollar',type:'static',bet:4, pct:null,on:true},
     {id:'s3',label:'Dynamic 5%',sub:'% of bankroll',type:'dynamic',bet:null,pct:5,on:true},
     {id:'s4',label:'Dynamic 2% ★',sub:'% of bankroll',type:'dynamic',bet:null,pct:2,on:true},
   ];
 }
 
-// Init triggered by loader script at bottom of file
+// ══════════════════════════════════════════════════════
+// SCREEN HELPERS  (no CSS class fighting — use display directly)
+// ══════════════════════════════════════════════════════
+function showLoading(){ show('loadingScreen'); hide('authScreen'); hide('appScreen'); }
+function showAuth()   { hide('loadingScreen'); show('authScreen');  hide('appScreen'); }
+function showApp()    { hide('loadingScreen'); hide('authScreen');  show('appScreen'); }
+function show(id){ document.getElementById(id).style.display=''; }
+function hide(id){ document.getElementById(id).style.display='none'; }
+function showHide(id,v){ document.getElementById(id).style.display=v?'':'none'; }
 
-function initApp() {
-  renderMonthGrid();
-  renderScenarios();
-  refreshSimPills();
-  refreshCmbPills();
+// ══════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════
+let authMode='login';
+function setAuthTab(m){
+  authMode=m;
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&m==='login')||(i===1&&m==='signup')));
+  document.getElementById('authBtn').textContent=m==='login'?'Login':'Create Account';
+  document.getElementById('nameField').style.display=m==='signup'?'':'none';
+  document.getElementById('authMsg').className='auth-msg';
 }
+function authMsg(txt,type){const el=document.getElementById('authMsg');el.textContent=txt;el.className='auth-msg '+type;}
 
-// ═══════════════════════════════════════════════════════════
-// AUTH (cloud mode only)
-// ═══════════════════════════════════════════════════════════
-let authMode = 'login';
-function setAuthTab(mode) {
-  authMode = mode;
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>
-    t.classList.toggle('active',(i===0&&mode==='login')||(i===1&&mode==='signup')));
-  document.getElementById('authBtn').textContent = mode==='login'?'Login':'Create Account';
-  document.getElementById('nameField').classList.toggle('hidden', mode==='login');
-  clearAuthMsg();
-}
-function showAuthMsg(msg,type='err'){
-  const el=document.getElementById('authMsg');
-  el.textContent=msg;el.className=`auth-msg ${type}`;el.classList.remove('hidden');
-}
-function clearAuthMsg(){document.getElementById('authMsg').classList.add('hidden');}
-
-async function doAuth() {
-  if(!sb){showAuthMsg('Cloud not available.');return;}
+async function doAuth(){
   const email=document.getElementById('authEmail').value.trim();
   const pass=document.getElementById('authPass').value;
   const name=document.getElementById('authName').value.trim();
   const btn=document.getElementById('authBtn');
-  if(!email||!pass){showAuthMsg('Please fill in all fields.');return;}
-  if(authMode==='signup'&&!name){showAuthMsg('Please enter your name.');return;}
-  btn.disabled=true;btn.innerHTML='<div class="loader"></div> Please wait...';
+  if(!email||!pass){authMsg('Please fill in all fields.','err');return;}
+  if(authMode==='signup'&&!name){authMsg('Please enter your name.','err');return;}
+  btn.disabled=true;btn.textContent='Please wait...';
   if(authMode==='login'){
-    const{error}=await sb.auth.signInWithPassword({email,password:pass});
-    if(error){showAuthMsg(error.message);btn.disabled=false;btn.textContent='Login';return;}
+    const{error}=await db.auth.signInWithPassword({email,password:pass});
+    if(error){authMsg(error.message,'err');btn.disabled=false;btn.textContent='Login';return;}
   } else {
-    const{error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
-    if(error){showAuthMsg(error.message);btn.disabled=false;btn.textContent='Create Account';return;}
-    showAuthMsg('Account created! Check your email to confirm, then login.','ok');
-    btn.disabled=false;btn.textContent='Create Account';return;
+    const{error}=await db.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+    if(error){authMsg(error.message,'err');btn.disabled=false;btn.textContent='Create Account';return;}
+    authMsg('Account created! Check your email to confirm, then login.','ok');
+    btn.disabled=false;btn.textContent='Create Account';
   }
 }
 
-async function logout() {
-  if(sb) await sb.auth.signOut();
+async function logout(){
+  await db.auth.signOut();
   currentUser=null;months=[];scenarios=defaultScenarios();
-  show('authScreen');hide('appScreen');
+  showAuth();
 }
 
-// ═══════════════════════════════════════════════════════════
-// DATA — CLOUD (Supabase)
-// ═══════════════════════════════════════════════════════════
-async function loadCloudData() {
-  try {
-    const[{data:md},{data:sd}] = await Promise.all([
-      sb.from('risk_months').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:true}),
-      sb.from('risk_scenarios').select('scenarios').eq('user_id',currentUser.id).single()
-    ]);
-    if(md) months=md;
-    if(sd?.scenarios) scenarios=sd.scenarios;
-  } catch(e){console.warn('Cloud load error',e);}
+// ══════════════════════════════════════════════════════
+// DB OPERATIONS
+// ══════════════════════════════════════════════════════
+async function loadAll(){
+  const[{data:md},{data:sd}]=await Promise.all([
+    db.from('risk_months').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:true}),
+    db.from('risk_scenarios').select('scenarios').eq('user_id',currentUser.id).single()
+  ]);
+  if(md) months=md;
+  if(sd?.scenarios) scenarios=sd.scenarios;
 }
 
-async function addMonthToDB(name,seq) {
-  const{data,error}=await sb.from('risk_months').insert({
+async function dbAdd(name,seq){
+  const{data,error}=await db.from('risk_months').insert({
     user_id:currentUser.id,name,seq,added:new Date().toLocaleDateString('en-GB')
   }).select().single();
   if(error){alert('Save error: '+error.message);return null;}
   return data;
 }
-async function updateMonthInDB(id,name,seq) {
-  await sb.from('risk_months').update({name,seq}).eq('id',id).eq('user_id',currentUser.id);
+async function dbUpdate(id,name,seq){
+  await db.from('risk_months').update({name,seq}).eq('id',id).eq('user_id',currentUser.id);
 }
-async function deleteMonthFromDB(id) {
-  await sb.from('risk_months').delete().eq('id',id).eq('user_id',currentUser.id);
+async function dbDelete(id){
+  await db.from('risk_months').delete().eq('id',id).eq('user_id',currentUser.id);
 }
-async function saveScenariosToDB() {
-  await sb.from('risk_scenarios').upsert({
-    user_id:currentUser.id,scenarios,updated_at:new Date().toISOString()
-  },{onConflict:'user_id'});
+async function saveScenarios(){
+  await db.from('risk_scenarios').upsert({user_id:currentUser.id,scenarios,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  sync('✓ Scenarios saved');
 }
-
-async function publishResult() {
-  if(!lastSimResults||!cloudMode||!currentUser){
-    if(!cloudMode)alert('Deploy with Supabase to use the leaderboard.');return;
-  }
-  const{active,results,capital,tradeCnt,monthName}=lastSimResults;
-  const sorted=[...active].sort((a,b)=>(results[b.id].returnPct-results[b.id].maxDD*1.2)-(results[a.id].returnPct-results[a.id].maxDD*1.2));
-  const best=sorted[0],rb=results[best.id];
-  const name=currentUser.user_metadata?.full_name||currentUser.email;
-  const{error}=await sb.from('risk_leaderboard').insert({
-    user_id:currentUser.id,user_name:name,month_name:monthName,
+async function publishResult(){
+  if(!lastResults)return;
+  const{active,results,capital,tradeCnt,monthName}=lastResults;
+  const best=[...active].sort((a,b)=>(results[b.id].returnPct-results[b.id].maxDD*1.2)-(results[a.id].returnPct-results[a.id].maxDD*1.2))[0];
+  const rb=results[best.id];
+  const uname=currentUser.user_metadata?.full_name||currentUser.email;
+  const{error}=await db.from('risk_leaderboard').insert({
+    user_id:currentUser.id,user_name:uname,month_name:monthName,
     return_pct:rb.returnPct,max_dd:rb.maxDD,final_balance:rb.final,
     trades:tradeCnt,starting_capital:capital,
-    scenario_label:best.label,scenario_config:best.type==='static'?`$${best.bet}`:`${best.pct}%`
+    scenario_label:best.label,scenario_config:best.type==='static'?'$'+best.bet:best.pct+'%'
   });
   if(error)alert('Publish error: '+error.message);
-  else{showSync('✓ Published!');switchTab('leaderboard');}
+  else{sync('✓ Published!');switchTab('leaderboard');}
 }
-
-async function loadLeaderboard() {
+async function loadLeaderboard(){
   const el=document.getElementById('leaderboardList');
-  if(!cloudMode||!sb){
-    el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:20px 0">🔒 Deploy with Supabase to enable the community leaderboard.</div>';return;
-  }
-  el.innerHTML='<div class="loading-screen" style="min-height:80px"><div class="loader"></div></div>';
-  const{data,error}=await sb.from('risk_leaderboard').select('*').order('return_pct',{ascending:false}).limit(50);
+  el.innerHTML='<div style="color:var(--muted);padding:20px 0;font-size:12px">Loading...</div>';
+  const{data,error}=await db.from('risk_leaderboard').select('*').order('return_pct',{ascending:false}).limit(50);
   if(error||!data?.length){el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:20px 0">No results yet. Run a simulation and publish it!</div>';return;}
   el.innerHTML=data.map((r,i)=>{
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`<span style="color:var(--muted)">${i+1}</span>`;
     const rc=r.return_pct>=0?'var(--green)':'var(--red)';
     const dc=r.max_dd>30?'var(--red)':r.max_dd>15?'var(--yellow)':'var(--green)';
-    return `<div class="lb-row">
+    return`<div class="lb-row">
       <div class="lb-rank">${medal}</div>
       <div><div style="font-family:var(--sans);font-weight:700;font-size:13px;color:#e8f4ff">${r.user_name}</div>
         <div style="font-size:10px;color:var(--muted)">${r.month_name} · ${r.trades} trades · $${r.starting_capital} · ${r.scenario_label}</div></div>
@@ -602,321 +557,249 @@ async function loadLeaderboard() {
   }).join('');
 }
 
-// ═══════════════════════════════════════════════════════════
-// DATA — LOCAL (localStorage demo mode)
-// ═══════════════════════════════════════════════════════════
-function loadLocalData() {
-  try {
-    const m=localStorage.getItem('rc_months_demo');
-    const s=localStorage.getItem('rc_scenarios_demo');
-    if(m) months=JSON.parse(m);
-    if(s) scenarios=JSON.parse(s);
-  } catch(e){}
-}
-function saveLocalData() {
-  try {
-    localStorage.setItem('rc_months_demo',JSON.stringify(months));
-    localStorage.setItem('rc_scenarios_demo',JSON.stringify(scenarios));
-  } catch(e){}
-}
-
-// ═══════════════════════════════════════════════════════════
-// UNIFIED MONTH OPERATIONS (auto-routes to cloud or local)
-// ═══════════════════════════════════════════════════════════
-async function addMonth(name,seq) {
-  const entry={id:'m_'+Date.now(),name,seq,added:new Date().toLocaleDateString('en-GB')};
-  if(cloudMode&&sb&&currentUser){
-    const data=await addMonthToDB(name,seq);
-    if(data){months.push(data);return data;}
-    return null;
-  }
-  months.push(entry);saveLocalData();return entry;
-}
-async function updateMonth(id,name,seq) {
-  const m=months.find(x=>x.id===id||x.id==id);
-  if(m){m.name=name;m.seq=seq;}
-  if(cloudMode&&sb&&currentUser) await updateMonthInDB(id,name,seq);
-  else saveLocalData();
-}
-async function deleteMonth(id) {
-  months=months.filter(m=>m.id!==id&&m.id!=id);
-  if(cloudMode&&sb&&currentUser) await deleteMonthFromDB(id);
-  else saveLocalData();
-}
-async function saveScenarios() {
-  if(cloudMode&&sb&&currentUser) await saveScenariosToDB();
-  else saveLocalData();
-  showSync('✓ Scenarios saved');
-}
-
-// ═══════════════════════════════════════════════════════════
-// MONTHS UI
-// ═══════════════════════════════════════════════════════════
-function renderMonthGrid() {
-  const grid=document.getElementById('monthGrid');
-  let html=months.map(m=>{
-    const trades=parseTrades(m.seq),w=trades.filter(t=>t==='W').length;
-    const wr=trades.length?Math.round(w/trades.length*1000)/10:0;
-    const wrc=wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
-    const mid=m.id;
-    return `<div class="month-card ${selectedSimMonth==mid?'selected':''}" onclick="selectSimMonth('${mid}')">
-      <button class="mc-del" onclick="event.stopPropagation();delMonth('${mid}')">×</button>
+// ══════════════════════════════════════════════════════
+// MONTH UI
+// ══════════════════════════════════════════════════════
+function renderMonthGrid(){
+  const g=document.getElementById('monthGrid');
+  let h=months.map(m=>{
+    const t=parseTrades(m.seq),w=t.filter(x=>x==='W').length;
+    const wr=t.length?Math.round(w/t.length*1000)/10:0;
+    const wc=wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
+    return`<div class="month-card${selSimMonth===m.id?' selected':''}" onclick="selectMonth('${m.id}')">
+      <button class="mc-del" onclick="event.stopPropagation();delMonth('${m.id}')">×</button>
       <div class="mc-name">${m.name}</div>
-      <div class="mc-stats">${trades.length} trades · ${w}W ${trades.length-w}L<br>
+      <div class="mc-stats">${t.length} trades · ${w}W ${t.length-w}L<br>
         <span style="color:var(--muted2)">Added ${m.added||'—'}</span></div>
-      <div class="mc-wr" style="color:${wrc}">⚡ ${wr}% win rate</div>
+      <div class="mc-wr" style="color:${wc}">⚡ ${wr}% win rate</div>
       <div style="display:flex;gap:6px;margin-top:10px">
-        <button class="btn btn-sm btn-outline" style="flex:1;font-size:10px" onclick="event.stopPropagation();openAddMonth('${mid}')">Edit</button>
-        <button class="btn btn-sm" style="flex:1;font-size:10px" onclick="event.stopPropagation();quickSim('${mid}')">Simulate</button>
+        <button class="btn btn-sm btn-outline" style="flex:1;font-size:10px" onclick="event.stopPropagation();openAddMonth('${m.id}')">Edit</button>
+        <button class="btn btn-sm" style="flex:1;font-size:10px" onclick="event.stopPropagation();quickSim('${m.id}')">Simulate</button>
       </div>
     </div>`;
   }).join('');
-  html+=`<div class="month-card add-card" onclick="openAddMonth()"><div class="plus">+</div>Add New Month</div>`;
-  grid.innerHTML=html;
+  h+=`<div class="month-card add-card" onclick="openAddMonth()"><div class="plus">+</div>Add New Month</div>`;
+  g.innerHTML=h;
 }
 
-function openAddMonth(id) {
-  editingMonthId=id||null;
+function openAddMonth(id){
+  editingId=id||null;
   document.getElementById('modalTitle').textContent=id?'Edit Month':'Add New Month';
-  if(id){
-    const m=months.find(x=>x.id===id||x.id==id);
-    if(m){document.getElementById('mName').value=m.name;document.getElementById('mSeq').value=m.seq;updateModalPrev(m.seq);}
-  } else {
-    document.getElementById('mName').value='';document.getElementById('mSeq').value='';
-    document.getElementById('modalPrev').innerHTML='';
-  }
-  show('addModal');setTimeout(()=>document.getElementById('mName').focus(),100);
+  if(id){const m=months.find(x=>x.id===id);document.getElementById('mName').value=m.name;document.getElementById('mSeq').value=m.seq;updatePrev(m.seq);}
+  else{document.getElementById('mName').value='';document.getElementById('mSeq').value='';document.getElementById('modalPrev').innerHTML='';}
+  document.getElementById('addModal').classList.add('open');
+  setTimeout(()=>document.getElementById('mName').focus(),100);
 }
-function closeModal(){hide('addModal');editingMonthId=null;}
+function closeModal(){document.getElementById('addModal').classList.remove('open');editingId=null;}
+document.getElementById('mSeq').addEventListener('input',function(){updatePrev(this.value);});
+function updatePrev(raw){document.getElementById('modalPrev').innerHTML=seqHtml(parseTrades(raw));}
 
-document.getElementById('mSeq').addEventListener('input',function(){updateModalPrev(this.value);});
-function updateModalPrev(raw){document.getElementById('modalPrev').innerHTML=seqHtml(parseTrades(raw));}
-
-async function saveMonth() {
+async function saveMonth(){
   const name=document.getElementById('mName').value.trim();
   const seq=document.getElementById('mSeq').value.trim();
   if(!name){alert('Please enter a month name.');return;}
   if(parseTrades(seq).length<2){alert('Please enter at least 2 trades.');return;}
   const btn=document.getElementById('saveMonthBtn');
-  btn.disabled=true;btn.innerHTML='<div class="loader"></div> Saving...';
-  if(editingMonthId) await updateMonth(editingMonthId,name,seq);
-  else await addMonth(name,seq);
+  btn.disabled=true;btn.textContent='Saving...';
+  if(editingId){
+    await dbUpdate(editingId,name,seq);
+    const m=months.find(x=>x.id===editingId);if(m){m.name=name;m.seq=seq;}
+  } else {
+    const data=await dbAdd(name,seq);if(data)months.push(data);
+  }
   btn.disabled=false;btn.textContent='Save Month';
-  closeModal();renderMonthGrid();refreshSimPills();refreshCmbPills();
-  showSync('✓ Saved');
+  closeModal();renderMonthGrid();refreshPills();sync('✓ Saved');
 }
 
-async function delMonth(id) {
+async function delMonth(id){
   if(!confirm('Delete this month?'))return;
-  await deleteMonth(id);
-  if(selectedSimMonth==id)selectedSimMonth=null;
-  selectedCmbMonths=selectedCmbMonths.filter(x=>x!=id);
-  renderMonthGrid();refreshSimPills();refreshCmbPills();
+  await dbDelete(id);
+  months=months.filter(m=>m.id!==id);
+  if(selSimMonth===id)selSimMonth=null;
+  selCmbMonths=selCmbMonths.filter(x=>x!==id);
+  renderMonthGrid();refreshPills();
 }
 
-async function loadFebDemo() {
+async function loadFebDemo(){
   if(months.find(m=>m.name==='Feb 2026')){alert('Feb 2026 already loaded!');return;}
-  await addMonth('Feb 2026',FEB);
-  renderMonthGrid();refreshSimPills();refreshCmbPills();showSync('✓ Feb 2026 loaded');
+  const data=await dbAdd('Feb 2026',FEB);
+  if(data){months.push(data);renderMonthGrid();refreshPills();sync('✓ Feb 2026 loaded');}
 }
 
-function selectSimMonth(id){selectedSimMonth=id;renderMonthGrid();switchTab('simulate');}
-function quickSim(id){selectedSimMonth=id;switchTab('simulate');setTimeout(runSim,100);}
-function showSync(msg){const el=document.getElementById('syncStatus');el.textContent=msg;setTimeout(()=>el.textContent='',3000);}
+function selectMonth(id){selSimMonth=id;renderMonthGrid();switchTab('simulate');}
+function quickSim(id){selSimMonth=id;switchTab('simulate');setTimeout(runSim,100);}
+function sync(msg){const el=document.getElementById('syncStatus');el.textContent=msg;setTimeout(()=>el.textContent='',3000);}
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // PILLS
-// ═══════════════════════════════════════════════════════════
-function refreshSimPills(){
-  const w=document.getElementById('simPills');
-  if(!months.length){w.innerHTML='<span style="color:var(--muted);font-size:12px">Add months first →</span>';return;}
-  w.innerHTML=months.map(m=>`<div class="pill ${selectedSimMonth==m.id?'on':''}" onclick="selSimPill('${m.id}')">${m.name}</div>`).join('');
+// ══════════════════════════════════════════════════════
+function refreshPills(){
+  const sp=document.getElementById('simPills'),cp=document.getElementById('cmbPills');
+  if(!months.length){
+    sp.innerHTML='<span style="color:var(--muted);font-size:12px">Add months first →</span>';
+    cp.innerHTML=sp.innerHTML;return;
+  }
+  sp.innerHTML=months.map(m=>`<div class="pill${selSimMonth===m.id?' on':''}" onclick="selSim('${m.id}')">${m.name}</div>`).join('');
+  cp.innerHTML=months.map(m=>`<div class="pill${selCmbMonths.includes(m.id)?' on':''}" onclick="togCmb('${m.id}')">${m.name}</div>`).join('');
 }
-function selSimPill(id){selectedSimMonth=id;refreshSimPills();renderMonthGrid();}
-function refreshCmbPills(){
-  const w=document.getElementById('cmbPills');
-  if(!months.length){w.innerHTML='<span style="color:var(--muted);font-size:12px">Add months first →</span>';return;}
-  w.innerHTML=months.map(m=>`<div class="pill ${selectedCmbMonths.includes(m.id)?'on':''}" onclick="togCmb('${m.id}')">${m.name}</div>`).join('');
-}
-function togCmb(id){
-  selectedCmbMonths=selectedCmbMonths.includes(id)?selectedCmbMonths.filter(x=>x!==id):[...selectedCmbMonths,id];
-  refreshCmbPills();
-}
+function selSim(id){selSimMonth=id;refreshPills();renderMonthGrid();}
+function togCmb(id){selCmbMonths=selCmbMonths.includes(id)?selCmbMonths.filter(x=>x!==id):[...selCmbMonths,id];refreshPills();}
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // SIMULATION ENGINE
-// ═══════════════════════════════════════════════════════════
-function parseTrades(raw){
-  return raw.trim().toUpperCase().replace(/,/g,' ').split(/\s+/).filter(t=>t==='W'||t==='L');
-}
-function simulate(trades,isDynamic,pct,staticBet,startCap,mult,resetLL){
-  let b=startCap,inM=false,base=0,peak=startCap,maxDD=0,maxDDD=0,wins=0,losses=0,rec=0,ll=0;
-  const hist=[startCap];
+// ══════════════════════════════════════════════════════
+function parseTrades(raw){return raw.trim().toUpperCase().replace(/,/g,' ').split(/\s+/).filter(t=>t==='W'||t==='L');}
+
+function simulate(trades,isDynamic,pct,bet,cap,mult,resetLL){
+  let b=cap,inM=false,base=0,peak=cap,mxDD=0,mxDDD=0,wins=0,losses=0,rec=0,ll=0;
+  const hist=[cap];
   for(let i=0;i<trades.length;i++){
-    if(!inM)base=isDynamic?b*(pct/100):staticBet;
-    const bet=inM?base*mult:base;
-    if(trades[i]==='W'){b+=bet;if(inM)rec++;else wins++;inM=false;}
-    else{b-=bet;if(inM){ll++;if(resetLL)inM=false;}else{losses++;inM=true;}}
+    if(!inM)base=isDynamic?b*(pct/100):bet;
+    const stake=inM?base*mult:base;
+    if(trades[i]==='W'){b+=stake;inM?rec++:wins++;inM=false;}
+    else{b-=stake;if(inM){ll++;if(resetLL)inM=false;}else{losses++;inM=true;}}
     b=Math.max(b,0);if(b>peak)peak=b;
-    const dd=((peak-b)/peak)*100,ddD=peak-b;
-    if(dd>maxDD)maxDD=dd;if(ddD>maxDDD)maxDDD=ddD;
+    const dd=((peak-b)/peak)*100,ddd=peak-b;
+    if(dd>mxDD)mxDD=dd;if(ddd>mxDDD)mxDDD=ddd;
     hist.push(Math.round(b*100)/100);
   }
   const final=Math.round(b*100)/100;
-  return{hist,final,maxDD:Math.round(maxDD*10)/10,maxDDD:Math.round(maxDDD*100)/100,
-    returnPct:Math.round(((final-startCap)/startCap)*1000)/10,profit:Math.round((final-startCap)*100)/100,wins,losses,rec,ll};
+  return{hist,final,maxDD:Math.round(mxDD*10)/10,maxDDD:Math.round(mxDDD*100)/100,
+    returnPct:Math.round(((final-cap)/cap)*1000)/10,profit:Math.round((final-cap)*100)/100,
+    wins,losses,rec,ll};
 }
-function getActive(){return scenarios.filter(s=>s.on);}
+function active(){return scenarios.filter(s=>s.on);}
 
 function runSim(){
-  if(!selectedSimMonth){alert('Select a month first.');return;}
-  const m=months.find(x=>x.id==selectedSimMonth);if(!m)return;
-  const trades=parseTrades(m.seq);
-  const cap=+document.getElementById('cfg_cap').value||200;
+  if(!selSimMonth){alert('Select a month first.');return;}
+  const m=months.find(x=>x.id===selSimMonth);if(!m)return;
+  const trades=parseTrades(m.seq),cap=+document.getElementById('cfg_cap').value||200;
   const mult=+document.getElementById('cfg_mult').value||2;
-  const reset=document.getElementById('cfg_reset').value==='yes';
-  const active=getActive();
-  if(!active.length){alert('Enable at least one scenario in Settings.');return;}
-  const results={};active.forEach(s=>results[s.id]=simulate(trades,s.type==='dynamic',s.pct,s.bet,cap,mult,reset));
-  lastSimResults={active,results,capital:cap,tradeCnt:trades.length,monthName:m.name};
+  const resetLL=document.getElementById('cfg_reset').value==='yes';
+  const acts=active();if(!acts.length){alert('Enable at least one scenario in Settings.');return;}
+  const res={};acts.forEach(s=>res[s.id]=simulate(trades,s.type==='dynamic',s.pct,s.bet,cap,mult,resetLL));
+  lastResults={active:acts,results:res,capital:cap,tradeCnt:trades.length,monthName:m.name};
   const w=trades.filter(t=>t==='W').length;
-  document.getElementById('simStats').innerHTML=`
-    <div class="ii"><div class="il">Month</div><div class="iv" style="color:var(--green)">${m.name}</div></div>
-    <div class="ii"><div class="il">Trades</div><div class="iv">${trades.length}</div></div>
-    <div class="ii"><div class="il">Wins</div><div class="iv" style="color:var(--green)">${w}</div></div>
-    <div class="ii"><div class="il">Losses</div><div class="iv" style="color:var(--red)">${trades.length-w}</div></div>
-    <div class="ii"><div class="il">Win Rate</div><div class="iv">${Math.round(w/trades.length*1000)/10}%</div></div>
-    <div class="ii"><div class="il">Capital</div><div class="iv">$${cap}</div></div>
-    <div class="ii"><div class="il">Mart ×</div><div class="iv">${mult}×</div></div>`;
+  document.getElementById('simStats').innerHTML=statRow([
+    ['Month',m.name,'var(--green)'],['Trades',trades.length],['Wins',w,'var(--green)'],
+    ['Losses',trades.length-w,'var(--red)'],['Win Rate',Math.round(w/trades.length*1000)/10+'%'],
+    ['Capital','$'+cap],['Mart',mult+'×']]);
   document.getElementById('simSeqPrev').innerHTML=seqHtml(trades);
-  renderChart('simChart',active,results,trades.length,cap,simChartInst,i=>simChartInst=i);
-  renderRcGrid('simRcGrid',active,results,cap);
-  renderVerdict('simVerdict',active,results,cap,trades);
-  show('simResults');document.getElementById('simResults').scrollIntoView({behavior:'smooth',block:'start'});
+  drawChart('simChart',acts,res,trades.length,simChart,c=>simChart=c);
+  drawCards('simRcGrid',acts,res);
+  drawVerdict('simVerdict',acts,res,trades);
+  document.getElementById('simResults').style.display='';
+  document.getElementById('simResults').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function runCombined(){
-  if(!selectedCmbMonths.length){alert('Select at least one month.');return;}
-  const selMs=selectedCmbMonths.map(id=>months.find(m=>m.id==id)).filter(Boolean);
-  const allTrades=selMs.flatMap(m=>parseTrades(m.seq));
+  if(!selCmbMonths.length){alert('Select at least one month.');return;}
+  const selMs=selCmbMonths.map(id=>months.find(m=>m.id===id)).filter(Boolean);
+  const allT=selMs.flatMap(m=>parseTrades(m.seq));
   const cap=+document.getElementById('cmb_cap').value||200;
   const mult=+document.getElementById('cmb_mult').value||2;
-  const reset=document.getElementById('cmb_reset').value==='yes';
-  const active=getActive();if(!active.length){alert('Enable at least one scenario.');return;}
-  const results={};active.forEach(s=>results[s.id]=simulate(allTrades,s.type==='dynamic',s.pct,s.bet,cap,mult,reset));
-  const w=allTrades.filter(t=>t==='W').length;
-  document.getElementById('cmbStats').innerHTML=`
-    <div class="ii"><div class="il">Months</div><div class="iv" style="color:var(--blue)">${selMs.length}</div></div>
-    <div class="ii"><div class="il">Total Trades</div><div class="iv">${allTrades.length}</div></div>
-    <div class="ii"><div class="il">Wins</div><div class="iv" style="color:var(--green)">${w}</div></div>
-    <div class="ii"><div class="il">Losses</div><div class="iv" style="color:var(--red)">${allTrades.length-w}</div></div>
-    <div class="ii"><div class="il">Win Rate</div><div class="iv">${Math.round(w/allTrades.length*1000)/10}%</div></div>
-    <div class="ii"><div class="il">Capital</div><div class="iv">$${cap}</div></div>`;
-  renderChart('cmbChart',active,results,allTrades.length,cap,cmbChartInst,i=>cmbChartInst=i);
-  renderRcGrid('cmbRcGrid',active,results,cap);
-  renderVerdict('cmbVerdict',active,results,cap,allTrades);
-  const best=[...active].sort((a,b)=>(results[b.id].returnPct-results[b.id].maxDD*1.2)-(results[a.id].returnPct-results[a.id].maxDD*1.2))[0];
-  let runCap=cap,tbl=`<table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead><tr style="border-bottom:1px solid var(--border2)">
-      ${['Month','Trades','Win%','Final $','Return','Max DD%','Rec','LL'].map(h=>`<th style="text-align:left;padding:6px 10px;color:var(--muted);font-size:10px;letter-spacing:.1em">${h}</th>`).join('')}
-    </tr></thead><tbody>`;
+  const resetLL=document.getElementById('cmb_reset').value==='yes';
+  const acts=active();if(!acts.length){alert('Enable at least one scenario.');return;}
+  const res={};acts.forEach(s=>res[s.id]=simulate(allT,s.type==='dynamic',s.pct,s.bet,cap,mult,resetLL));
+  const w=allT.filter(t=>t==='W').length;
+  document.getElementById('cmbStats').innerHTML=statRow([
+    ['Months',selMs.length,'var(--blue)'],['Total Trades',allT.length],['Wins',w,'var(--green)'],
+    ['Losses',allT.length-w,'var(--red)'],['Win Rate',Math.round(w/allT.length*1000)/10+'%'],['Capital','$'+cap]]);
+  drawChart('cmbChart',acts,res,allT.length,cmbChart,c=>cmbChart=c);
+  drawCards('cmbRcGrid',acts,res);
+  drawVerdict('cmbVerdict',acts,res,allT);
+  const best=[...acts].sort((a,b)=>(res[b.id].returnPct-res[b.id].maxDD*1.2)-(res[a.id].returnPct-res[a.id].maxDD*1.2))[0];
+  let runCap=cap,tbl=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="border-bottom:1px solid var(--border2)">${['Month','Trades','Win%','Final $','Return','Max DD%','Rec','LL'].map(h=>`<th style="text-align:left;padding:6px 10px;color:var(--muted);font-size:10px">${h}</th>`).join('')}</tr></thead><tbody>`;
   selMs.forEach(m=>{
-    const t=parseTrades(m.seq),r=simulate(t,best.type==='dynamic',best.pct,best.bet,runCap,mult,reset);
+    const t=parseTrades(m.seq),r=simulate(t,best.type==='dynamic',best.pct,best.bet,runCap,mult,resetLL);
     const wr=Math.round(t.filter(x=>x==='W').length/t.length*1000)/10;
-    const wrc=wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
+    const wc=wr>=60?'var(--green)':wr>=50?'var(--yellow)':'var(--red)';
     const rc=r.returnPct>=0?'var(--green)':'var(--red)';
     const dc=r.maxDD>30?'var(--red)':r.maxDD>15?'var(--yellow)':'var(--green)';
     tbl+=`<tr style="border-bottom:1px solid var(--border)">
       <td style="padding:8px 10px;font-weight:700;color:${SC_COL[best.id].c}">${m.name}</td>
-      <td style="padding:8px 10px">${t.length}</td>
-      <td style="padding:8px 10px;color:${wrc}">${wr}%</td>
+      <td style="padding:8px 10px">${t.length}</td><td style="padding:8px 10px;color:${wc}">${wr}%</td>
       <td style="padding:8px 10px;color:${rc}">$${r.final.toFixed(0)}</td>
       <td style="padding:8px 10px;color:${rc}">${r.returnPct>=0?'+':''}${r.returnPct}%</td>
       <td style="padding:8px 10px;color:${dc}">-${r.maxDD}%</td>
       <td style="padding:8px 10px;color:var(--green)">${r.rec}</td>
-      <td style="padding:8px 10px;color:var(--red)">${r.ll}</td>
-    </tr>`;
+      <td style="padding:8px 10px;color:var(--red)">${r.ll}</td></tr>`;
     runCap=r.final;
   });
   document.getElementById('perMonthTable').innerHTML=tbl+'</tbody></table>';
-  show('cmbResults');document.getElementById('cmbResults').scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('cmbResults').style.display='';
+  document.getElementById('cmbResults').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // CHART
-// ═══════════════════════════════════════════════════════════
-function renderChart(canvasId,active,results,total,cap,prev,setter){
-  if(typeof Chart==='undefined'){
-    document.getElementById(canvasId).parentElement.innerHTML=
-      '<div style="color:var(--muted);font-size:12px;padding:20px;text-align:center">Chart unavailable in this environment — works on deployed site.</div>';
-    return;
-  }
-  const labels=Array.from({length:total+1},(_,i)=>i);
-  const datasets=active.map(s=>({
-    label:s.label,data:results[s.id].hist,
-    borderColor:SC_COL[s.id].c,backgroundColor:'transparent',
-    borderWidth:s.id==='s4'?2.5:1.8,pointRadius:0,tension:.3,
-  }));
+// ══════════════════════════════════════════════════════
+function drawChart(canvasId,acts,res,total,prev,setter){
   if(prev)prev.destroy();
   const ctx=document.getElementById(canvasId).getContext('2d');
-  setter(new Chart(ctx,{type:'line',data:{labels,datasets},options:{
-    responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    plugins:{
-      legend:{labels:{color:'#3a5a7a',font:{family:'Space Mono',size:10},boxWidth:18,padding:12}},
-      tooltip:{backgroundColor:'#060d1a',borderColor:'#0d2040',borderWidth:1,
-        titleColor:'#3a5a7a',bodyColor:'#b8cee0',
-        titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:12},
-        callbacks:{title:i=>`Trade #${i[0].label}`,label:i=>` ${i.dataset.label}: $${i.raw.toFixed(2)}`}}
+  setter(new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:Array.from({length:total+1},(_,i)=>i),
+      datasets:acts.map(s=>({label:s.label,data:res[s.id].hist,borderColor:SC_COL[s.id].c,
+        backgroundColor:'transparent',borderWidth:s.id==='s4'?2.5:1.8,pointRadius:0,tension:.3}))
     },
-    scales:{
-      x:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},maxTicksLimit:12},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}},
-      y:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},callback:v=>`$${v}`},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}}
-    }
-  }}));
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:'#3a5a7a',font:{family:'Space Mono',size:10},boxWidth:18,padding:12}},
+        tooltip:{backgroundColor:'#060d1a',borderColor:'#0d2040',borderWidth:1,
+          titleColor:'#3a5a7a',bodyColor:'#b8cee0',
+          titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:12},
+          callbacks:{title:i=>`Trade #${i[0].label}`,label:i=>` ${i.dataset.label}: $${i.raw.toFixed(2)}`}}
+      },
+      scales:{
+        x:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},maxTicksLimit:12},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}},
+        y:{ticks:{color:'#3a5a7a',font:{family:'Space Mono',size:10},callback:v=>`$${v}`},grid:{color:'rgba(13,32,64,.8)'},border:{color:'#0d2040'}}
+      }}
+  }));
 }
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // RESULT CARDS + VERDICT
-// ═══════════════════════════════════════════════════════════
-function renderRcGrid(gridId,active,results,cap){
-  const bestId=active.reduce((b,s)=>results[s.id].final>results[b.id].final?s:b,active[0]).id;
-  const safeId=active.reduce((b,s)=>results[s.id].maxDD<results[b.id].maxDD?s:b,active[0]).id;
-  document.getElementById(gridId).innerHTML=active.map(s=>{
-    const r=results[s.id],co=SC_COL[s.id];
-    const isBest=s.id===bestId,isSafe=s.id===safeId;
+// ══════════════════════════════════════════════════════
+function drawCards(gridId,acts,res){
+  const bestId=acts.reduce((b,s)=>res[s.id].final>res[b.id].final?s:b,acts[0]).id;
+  const safeId=acts.reduce((b,s)=>res[s.id].maxDD<res[b.id].maxDD?s:b,acts[0]).id;
+  document.getElementById(gridId).innerHTML=acts.map(s=>{
+    const r=res[s.id],co=SC_COL[s.id];
     const dc=r.maxDD>35?'var(--red)':r.maxDD>18?'var(--yellow)':'var(--green)';
-    const rec=r.rec+r.ll>0?Math.round(r.rec/(r.rec+r.ll)*100):0;
-    return `<div class="rc" style="background:${co.bg};border-color:${co.c}30;--rc-c:${co.c}">
+    const recR=r.rec+r.ll>0?Math.round(r.rec/(r.rec+r.ll)*100):0;
+    return`<div class="rc" style="background:${co.bg};border-color:${co.c}30;--rc-c:${co.c}">
       <div class="rc-name" style="color:${co.c}">${s.label}
-        ${isBest?`<span class="badge" style="background:var(--green2);color:var(--green)">BEST</span>`:''}
-        ${isSafe&&!isBest?`<span class="badge" style="background:var(--blue2);color:var(--blue)">SAFE</span>`:''}
+        ${s.id===bestId?`<span class="badge" style="background:var(--green2);color:var(--green)">BEST</span>`:''}
+        ${s.id===safeId&&s.id!==bestId?`<span class="badge" style="background:var(--blue2);color:var(--blue)">SAFE</span>`:''}
       </div>
-      <div class="rc-sub">${s.type==='static'?`Static $${s.bet}`:`Dynamic ${s.pct}%`}</div>
-      <div class="g2" style="gap:8px">
-        ${[['Final',`$${r.final.toFixed(0)}`,r.profit>=0?'var(--green)':'var(--red)'],
-           ['Return',`${r.returnPct>=0?'+':''}${r.returnPct}%`,r.returnPct>=0?'var(--green)':'var(--red)'],
-           ['Max DD%',`-${r.maxDD}%`,dc],['Max DD $',`-$${r.maxDDD.toFixed(0)}`,dc],
-           ['Recovery',`${rec}%`,'var(--green)'],['LL Events',r.ll,'var(--red)']
-        ].map(([l,v,c])=>`<div class="sm"><div class="sl">${l}</div><div class="sv" style="color:${c}">${v}</div></div>`).join('')}
-      </div>
+      <div class="rc-sub">${s.type==='static'?'Static $'+s.bet:'Dynamic '+s.pct+'%'}</div>
+      <div class="g2" style="gap:8px">${[
+        ['Final','$'+r.final.toFixed(0),r.profit>=0?'var(--green)':'var(--red)'],
+        ['Return',(r.returnPct>=0?'+':'')+r.returnPct+'%',r.returnPct>=0?'var(--green)':'var(--red)'],
+        ['Max DD%','-'+r.maxDD+'%',dc],['Max DD $','-$'+r.maxDDD.toFixed(0),dc],
+        ['Recovery',recR+'%','var(--green)'],['LL Events',r.ll,'var(--red)']
+      ].map(([l,v,c])=>`<div class="sm"><div class="sl">${l}</div><div class="sv" style="color:${c||'var(--text)'}">${v}</div></div>`).join('')}</div>
     </div>`;
   }).join('');
 }
-function renderVerdict(boxId,active,results,cap,trades){
-  const sorted=[...active].sort((a,b)=>(results[b.id].returnPct-results[b.id].maxDD*1.2)-(results[a.id].returnPct-results[a.id].maxDD*1.2));
-  const best=sorted[0],rb=results[best.id];
+
+function drawVerdict(boxId,acts,res,trades){
+  const best=[...acts].sort((a,b)=>(res[b.id].returnPct-res[b.id].maxDD*1.2)-(res[a.id].returnPct-res[a.id].maxDD*1.2))[0];
+  const rb=res[best.id];
   const wr=Math.round(trades.filter(t=>t==='W').length/trades.length*1000)/10;
-  const recRate=rb.rec+rb.ll>0?Math.round(rb.rec/(rb.rec+rb.ll)*100):0;
+  const recR=rb.rec+rb.ll>0?Math.round(rb.rec/(rb.rec+rb.ll)*100):0;
   document.getElementById(boxId).innerHTML=`
     <div class="verdict-title">★ Best Risk-Adjusted: ${best.label} (${best.type==='static'?'$'+best.bet:best.pct+'%'})</div>
     <p>With a <strong>${wr}% win rate</strong> across <strong>${trades.length} trades</strong>, this setup ends at <strong>$${rb.final.toFixed(2)}</strong> — a <strong>+${rb.returnPct}%</strong> return — keeping max drawdown at <strong>-${rb.maxDD}%</strong> ($${rb.maxDDD.toFixed(0)}).</p>
-    <p>Martingale recovery rate: <strong>${recRate}%</strong> (${rb.rec} recovered / ${rb.ll} failed). This recovery rate is the entire foundation of your edge.</p>
-    <p>Max realistic cluster loss: <strong>-${rb.maxDD}%</strong>. Always size 1R so this never feels like an emergency — because it will happen again.</p>`;
+    <p>Martingale recovery rate: <strong>${recR}%</strong> (${rb.rec} recovered / ${rb.ll} failed). This is the core engine of your edge.</p>
+    <p>Max realistic cluster loss: <strong>-${rb.maxDD}%</strong>. Always size 1R so this never feels like an emergency.</p>`;
 }
 
-// ═══════════════════════════════════════════════════════════
-// SEQ HTML
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
 function seqHtml(trades){
   let h='';
   for(let i=0;i<trades.length;i++){
@@ -925,28 +808,30 @@ function seqHtml(trades){
   }
   return h;
 }
+function statRow(rows){
+  return rows.map(([l,v,c])=>`<div class="ii"><div class="il">${l}</div><div class="iv" ${c?`style="color:${c}"`:''}>${v}</div></div>`).join('');
+}
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // SCENARIOS
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function renderScenarios(){
   document.getElementById('scGrid').innerHTML=scenarios.map(s=>{
     const co=SC_COL[s.id];
-    return `<div class="sc-card ${s.on?'on':''}" style="--sc-c:${co.c};--sc-bg:${co.bg};--sc-glow:${co.glow}">
+    return`<div class="sc-card${s.on?' on':''}" style="--sc-c:${co.c};--sc-bg:${co.bg};--sc-glow:${co.glow}">
       <div class="sc-name">${s.label}</div><div class="sc-sub">${s.sub}</div>
       <div class="sc-row"><label>Name</label>
         <input type="text" value="${s.label}" style="width:100px;font-size:11px" oninput="updSc('${s.id}','label',this.value)"></div>
       <div class="sc-row"><label>Type</label>
         <select onchange="updScType('${s.id}',this.value)" style="font-size:11px;padding:4px 6px;width:90px">
-          <option value="static" ${s.type==='static'?'selected':''}>Static $</option>
-          <option value="dynamic" ${s.type==='dynamic'?'selected':''}>Dynamic %</option>
+          <option value="static"${s.type==='static'?' selected':''}>Static $</option>
+          <option value="dynamic"${s.type==='dynamic'?' selected':''}>Dynamic %</option>
         </select></div>
       ${s.type==='static'
         ?`<div class="sc-row"><label>Bet $</label><input type="number" min=".1" step=".5" value="${s.bet}" oninput="updSc('${s.id}','bet',+this.value)" style="width:80px"></div>`
-        :`<div class="sc-row"><label>Pct %</label><input type="number" min=".1" max="50" step=".1" value="${s.pct}" oninput="updSc('${s.id}','pct',+this.value)" style="width:80px"></div>`
-      }
+        :`<div class="sc-row"><label>Pct %</label><input type="number" min=".1" max="50" step=".1" value="${s.pct}" oninput="updSc('${s.id}','pct',+this.value)" style="width:80px"></div>`}
       <div class="sc-bottom">
-        <div class="sc-toggle ${s.on?'on':''}" onclick="togSc('${s.id}')"></div>
+        <div class="sc-toggle${s.on?' on':''}" onclick="togSc('${s.id}')"></div>
         <span>${s.on?'ON':'OFF'}</span>
       </div>
     </div>`;
@@ -957,90 +842,50 @@ function updScType(id,t){const s=scenarios.find(x=>x.id===id);if(s){s.type=t;if(
 function togSc(id){const s=scenarios.find(x=>x.id===id);if(s)s.on=!s.on;renderScenarios();}
 function resetScenarios(){if(confirm('Reset?')){scenarios=defaultScenarios();renderScenarios();}}
 
-// ═══════════════════════════════════════════════════════════
-// TABS + UTILS
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.add('hidden'));
-  const p=document.getElementById('tab-'+name);
-  p.classList.remove('hidden');p.classList.add('fade');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none');
+  const p=document.getElementById('tab-'+name);p.style.display='';p.classList.add('fade');
   if(name==='months')renderMonthGrid();
-  if(name==='simulate')refreshSimPills();
-  if(name==='combined')refreshCmbPills();
+  if(name==='simulate')refreshPills();
+  if(name==='combined')refreshPills();
   if(name==='leaderboard')loadLeaderboard();
   if(name==='settings')renderScenarios();
 }
-function show(id){document.getElementById(id).classList.remove('hidden')}
-function hide(id){document.getElementById(id).classList.add('hidden')}
 </script>
 
-<!-- Supabase loaded LAST — triggers app init once ready, falls back to demo if blocked -->
+<!-- Supabase + Chart.js loaded last, then boot -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-(function() {
-  var CONFIGURED = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE';
-
-  function showScreen(id) {
-    ['authScreen','appScreen','loadingScreen'].forEach(function(s) {
-      var el = document.getElementById(s);
-      if (!el) return;
-      if (s === id) {
-        el.classList.remove('hidden');
-      } else {
-        el.classList.add('hidden');
-      }
-    });
+(function boot(){
+  showLoading();
+  try{
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  } catch(e){
+    document.querySelector('.loading-text').textContent = 'Error: could not connect to Supabase. Check your URL and key.';
+    return;
   }
-
-  function startDemoMode() {
-    try {
-      loadLocalData();
-    } catch(e) {}
-    var emailEl = document.getElementById('userEmail');
-    if (emailEl) emailEl.textContent = 'Demo Mode (Local)';
-    var banner = document.getElementById('demoBanner');
-    if (banner) banner.classList.remove('hidden');
-    showScreen('appScreen');
-    try { initApp(); } catch(e) { console.error('initApp error:', e); }
-  }
-
-  function startCloudMode() {
-    try {
-      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      cloudMode = true;
-
-      sb.auth.onAuthStateChange(async function(event, session) {
-        if (session && session.user) {
-          currentUser = session.user;
-          showScreen('loadingScreen');
-          try { await loadCloudData(); } catch(e) { console.warn('load error', e); }
-          var emailEl = document.getElementById('userEmail');
-          if (emailEl) emailEl.textContent = session.user.email;
-          var logoutBtn = document.getElementById('logoutBtn');
-          if (logoutBtn) logoutBtn.classList.remove('hidden');
-          showScreen('appScreen');
-          try { initApp(); } catch(e) { console.error('initApp error:', e); }
-        } else {
-          currentUser = null;
-          showScreen('authScreen');
-        }
-      });
-    } catch(e) {
-      console.warn('Supabase init failed:', e);
-      startDemoMode();
+  db.auth.onAuthStateChange(async function(event, session){
+    if(session && session.user){
+      currentUser = session.user;
+      showLoading();
+      try{ await loadAll(); } catch(e){ console.warn('loadAll error',e); }
+      document.getElementById('userEmail').textContent = session.user.email;
+      showApp();
+      renderMonthGrid();
+      renderScenarios();
+      refreshPills();
+      // make sure first tab panel is visible
+      document.getElementById('tab-months').style.display='';
+    } else {
+      currentUser = null;
+      showAuth();
     }
-  }
-
-  if (CONFIGURED) {
-    showScreen('loadingScreen');
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    s.onload = function() { startCloudMode(); };
-    s.onerror = function() { startDemoMode(); };
-    document.head.appendChild(s);
-  } else {
-    startDemoMode();
-  }
+  });
 })();
 </script>
 </body>
