@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Market Cipher Risk Simulator — Alauddin Ahmed</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window._supabaseFailed=true"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -442,20 +441,9 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 const SUPABASE_URL = https://wdlbdvtnbrwudjeqxxug.supabase.co;
 const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkbGJkdnRuYnJ3dWRqZXF4eHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTIzMjEsImV4cCI6MjA4ODIyODMyMX0.ISK3h73UehKrPokCcqhJsWoxUI4fhbJT5FZHRCUYS-Y;
 
-// ═══════════════════════════════════════════════════════════
-// MODE DETECTION
-// cloudMode = true  → full Supabase auth + cloud DB
-// cloudMode = false → localStorage demo mode (no login needed)
-// ═══════════════════════════════════════════════════════════
-const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE';
-const supabaseAvailable = typeof window.supabase !== 'undefined' && !window._supabaseFailed;
-const cloudMode = isConfigured && supabaseAvailable;
-
+// sb and cloudMode are set by the loader at the bottom
 let sb = null;
-if (cloudMode) {
-  try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
-  catch(e) { console.warn('Supabase init failed, using demo mode'); }
-}
+let cloudMode = false;
 
 // ═══════════════════════════════════════════════════════════
 // STATE
@@ -487,35 +475,7 @@ function defaultScenarios() {
   ];
 }
 
-// ═══════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  if (cloudMode && sb) {
-    // Cloud mode: wait for Supabase auth state
-    sb.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        currentUser = session.user;
-        show('loadingScreen'); hide('authScreen'); hide('appScreen');
-        await loadCloudData();
-        document.getElementById('userEmail').textContent = session.user.email;
-        show('logoutBtn');
-        hide('loadingScreen'); show('appScreen');
-        initApp();
-      } else {
-        currentUser = null;
-        hide('loadingScreen'); hide('appScreen'); show('authScreen');
-      }
-    });
-  } else {
-    // Demo mode: skip login, load from localStorage
-    loadLocalData();
-    document.getElementById('userEmail').textContent = 'Demo Mode (Local)';
-    show('demoBanner');
-    show('appScreen');
-    initApp();
-  }
-});
+// Init triggered by loader script at bottom of file
 
 function initApp() {
   renderMonthGrid();
@@ -1015,10 +975,58 @@ function show(id){document.getElementById(id).classList.remove('hidden')}
 function hide(id){document.getElementById(id).classList.add('hidden')}
 </script>
 
-<!-- Load Supabase AFTER all app code — won't crash if it fails -->
+<!-- Supabase loaded LAST — triggers app init once ready, falls back to demo if blocked -->
 <script>
-(function(){
-  if(!window.supabase && typeof sb === 'undefined') return;
+(function() {
+  const CONFIGURED = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE';
+
+  function startApp(withCloud) {
+    if (withCloud && window.supabase) {
+      try {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        cloudMode = true;
+        // cloud mode: let onAuthStateChange handle the rest
+        sb.auth.onAuthStateChange(async (event, session) => {
+          if (session?.user) {
+            currentUser = session.user;
+            show('loadingScreen'); hide('authScreen'); hide('appScreen');
+            await loadCloudData();
+            document.getElementById('userEmail').textContent = session.user.email;
+            show('logoutBtn');
+            hide('loadingScreen'); show('appScreen');
+            initApp();
+          } else {
+            currentUser = null;
+            hide('loadingScreen'); hide('appScreen'); show('authScreen');
+          }
+        });
+      } catch(e) {
+        startDemoMode();
+      }
+    } else {
+      startDemoMode();
+    }
+  }
+
+  function startDemoMode() {
+    loadLocalData();
+    document.getElementById('userEmail').textContent = 'Demo Mode (Local)';
+    show('demoBanner');
+    show('appScreen');
+    initApp();
+  }
+
+  if (CONFIGURED) {
+    // Load Supabase script dynamically, then start
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.onload = function() { startApp(true); };
+    s.onerror = function() { startApp(false); };
+    document.head.appendChild(s);
+  } else {
+    // No keys configured — demo mode immediately
+    startDemoMode();
+  }
 })();
 </script>
 </body>
