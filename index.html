@@ -446,7 +446,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // cloudMode = true  → full Supabase auth + cloud DB
 // cloudMode = false → localStorage demo mode (no login needed)
 // ═══════════════════════════════════════════════════════════
-const isConfigured = SUPABASE_URL !== 'https://wdlbdvtnbrwudjeqxxug.supabase.co';
+const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE';
 const supabaseAvailable = typeof window.supabase !== 'undefined';
 const cloudMode = isConfigured && supabaseAvailable;
 
