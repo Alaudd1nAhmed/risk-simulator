@@ -49,7 +49,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13
 .auth-msg.err{background:var(--red2);color:var(--red);border:1px solid rgba(255,64,96,.2)}
 .auth-msg.ok{background:var(--green2);color:var(--green);border:1px solid rgba(0,229,170,.2)}
 .auth-creator{margin-top:20px;font-size:10px;color:var(--muted2);padding-top:16px;border-top:1px solid var(--border)}
- 
+
 /* ── HEADER ── */
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;gap:16px;flex-wrap:wrap}
 .tag{font-size:10px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
@@ -259,7 +259,7 @@ textarea{resize:vertical;min-height:80px;font-size:12px;line-height:1.8;letter-s
 </div>
 
 <!-- LOADING -->
-<div id="loadingScreen" class="hidden">
+<div id="loadingScreen">
   <div class="loading-screen"><div class="loader"></div><span>Loading your data...</span></div>
 </div>
 
@@ -978,53 +978,67 @@ function hide(id){document.getElementById(id).classList.add('hidden')}
 <!-- Supabase loaded LAST — triggers app init once ready, falls back to demo if blocked -->
 <script>
 (function() {
-  const CONFIGURED = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE';
+  var CONFIGURED = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE';
 
-  function startApp(withCloud) {
-    if (withCloud && window.supabase) {
-      try {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        cloudMode = true;
-        // cloud mode: let onAuthStateChange handle the rest
-        sb.auth.onAuthStateChange(async (event, session) => {
-          if (session?.user) {
-            currentUser = session.user;
-            show('loadingScreen'); hide('authScreen'); hide('appScreen');
-            await loadCloudData();
-            document.getElementById('userEmail').textContent = session.user.email;
-            show('logoutBtn');
-            hide('loadingScreen'); show('appScreen');
-            initApp();
-          } else {
-            currentUser = null;
-            hide('loadingScreen'); hide('appScreen'); show('authScreen');
-          }
-        });
-      } catch(e) {
-        startDemoMode();
+  function showScreen(id) {
+    ['authScreen','appScreen','loadingScreen'].forEach(function(s) {
+      var el = document.getElementById(s);
+      if (!el) return;
+      if (s === id) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
       }
-    } else {
+    });
+  }
+
+  function startDemoMode() {
+    try {
+      loadLocalData();
+    } catch(e) {}
+    var emailEl = document.getElementById('userEmail');
+    if (emailEl) emailEl.textContent = 'Demo Mode (Local)';
+    var banner = document.getElementById('demoBanner');
+    if (banner) banner.classList.remove('hidden');
+    showScreen('appScreen');
+    try { initApp(); } catch(e) { console.error('initApp error:', e); }
+  }
+
+  function startCloudMode() {
+    try {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      cloudMode = true;
+
+      sb.auth.onAuthStateChange(async function(event, session) {
+        if (session && session.user) {
+          currentUser = session.user;
+          showScreen('loadingScreen');
+          try { await loadCloudData(); } catch(e) { console.warn('load error', e); }
+          var emailEl = document.getElementById('userEmail');
+          if (emailEl) emailEl.textContent = session.user.email;
+          var logoutBtn = document.getElementById('logoutBtn');
+          if (logoutBtn) logoutBtn.classList.remove('hidden');
+          showScreen('appScreen');
+          try { initApp(); } catch(e) { console.error('initApp error:', e); }
+        } else {
+          currentUser = null;
+          showScreen('authScreen');
+        }
+      });
+    } catch(e) {
+      console.warn('Supabase init failed:', e);
       startDemoMode();
     }
   }
 
-  function startDemoMode() {
-    loadLocalData();
-    document.getElementById('userEmail').textContent = 'Demo Mode (Local)';
-    show('demoBanner');
-    show('appScreen');
-    initApp();
-  }
-
   if (CONFIGURED) {
-    // Load Supabase script dynamically, then start
+    showScreen('loadingScreen');
     var s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    s.onload = function() { startApp(true); };
-    s.onerror = function() { startApp(false); };
+    s.onload = function() { startCloudMode(); };
+    s.onerror = function() { startDemoMode(); };
     document.head.appendChild(s);
   } else {
-    // No keys configured — demo mode immediately
     startDemoMode();
   }
 })();
